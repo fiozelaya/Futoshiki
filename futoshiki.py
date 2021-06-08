@@ -13,18 +13,195 @@ import random
 ## funciones ##
 def jugar():
     
-    def presionar(fila,columna):
-        pass
+    def presionar(obj,fila,columna):
+        if variableIniciar == 0:
+            return
+        obj.config(text=str(botonNumero))
 
-    def presionar_numero(num):
-        pass
+        #restricciones
+        #filas y columnas
+
+        for i in range(5):
+            try:
+                filas = int(cuadriculaBotones[fila][i][0])
+            except:
+                filas = 0
+            print(filas)
+            try:
+                columnas = int(cuadriculaBotones[i][columna][0])
+            except:
+                columnas = 0
+            print(columnas)
+            if filas == botonNumero:
+                obj.config(bg="red")
+                messagebox.showinfo("!","Jugada no válida: El elemento ya se encuentra en la fila")
+                obj.config(text="")
+                obj.config(bg="SystemButtonFace")
+                return
+            if columnas == botonNumero:
+                obj.config(bg="red")
+                messagebox.showinfo("!","Jugada no válida: El elemento ya se encuentra en la columna")
+                obj.config(text="")
+                obj.config(bg="SystemButtonFace")
+                return
+                
+        for simbolo in partida:
+            print(simbolo)
+            k = 0
+            elemento = simbolo[0]
+            ifObj = simbolo[1]
+            icObj = simbolo[2]
+            if elemento.isdigit() == True:
+                print(1)
+                if ifObj == fila and icObj == columna:
+                    obj = objetosBotones[fila][columna]
+                    obj.config(bg="red")
+                    messagebox.showinfo("!","Jugada no válida: La casilla es un dígito fijo")
+                    obj.config(bg="SystemButtonFace")
+                    obj.config(text=str(elemento))
+                    k = 1
+                    return
+            #else:
+            if ifObj == fila and icObj == columna:
+                print(elemento)
+                print(fila,columna)
+                if elemento == "<":
+                    try:
+                        elemento2 = cuadriculaBotones[fila][columna+1][0]
+                    except:
+                        elemento2 = 0
+                    print(elemento2)
+                    if botonNumero > elemento2:
+                        obj.config(bg="red")
+                        messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de menor")
+                        obj.config(bg="SystemButtonFace")
+                        obj.config(text=" ")    
+                        return
+                if elemento == ">":
+                    try:
+                        elemento2 = cuadriculaBotones[fila][columna+1][0]
+                    except:
+                        elemento2 = 0
+                    print(elemento2)
+                    if botonNumero < elemento2:
+                        obj.config(bg="red")
+                        messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
+                        obj.config(bg="SystemButtonFace")
+                        obj.config(text=" ")
+                        return
+                if elemento == "˄":
+                    try:
+                        elemento2 = cuadriculaBotones[fila-1][columna][0]
+                    except:
+                        elemento2 = 0
+                    print(elemento2)
+                    if botonNumero < elemento2:
+                        obj.config(bg="red")
+                        messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
+                        obj.config(bg="SystemButtonFace")
+                        obj.config(text=" ")
+                        return
+                if elemento == "˅":
+                    try:
+                        elemento2 = cuadriculaBotones[fila-1][columna][0]
+                    except:
+                        elemento2 = 0
+                    print(elemento2)
+                    if botonNumero > elemento2:
+                        obj.config(bg="red")
+                        messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de menor")
+                        obj.config(bg="SystemButtonFace")
+                        obj.config(text=" ")
+                        return
+
+        if len(cuadriculaBotones[fila][columna]) > 0:
+            cuadriculaBotones[fila][columna][0] = botonNumero
+        else:
+            cuadriculaBotones[fila][columna].append(botonNumero)
+        print(cuadriculaBotones)
+
+    def presionar_numero(num,obj):
+        global botonNumero
+        if variableIniciar == 0:
+            return
+        for i,objetoNumero in enumerate(listaBotonesNumero):
+            if objetoNumero != obj:
+                objetoNumero.config(relief="raised",bg=colores[i])
+        botonNumero = num
+        obj.config(relief="sunken",bg="#A1E240")
 
     def iniciar():
+        global variableIniciar
+        global h
+        global m
+        global s
+        variableIniciar = 1
         nombre = entryNombre.get()
         if nombre == "":
             messagebox.showerror("Error","No ha registrado el nombre del jugador")
             return
-        variableIniciar = 1
+        btnIniciar.config(state="disabled")
+        if configuracion[1][1] == 1:
+            pass
+        elif configuracion[1][0] == 1:
+            cronómetro()
+        elif configuracion[1][2] == 1:
+            h = int(configuracion[3][0])
+            m = int(configuracion[3][1])
+            s = int(configuracion[3][2])
+            timer()
+
+    def timer():
+        global h
+        global m
+        global s
+        global variableIniciar
+        s -= 1
+        if s < 0 and m != 0:
+            s = 59
+            m -= 1
+            if m < 0 and h != 0:
+                m = 59
+                h -= 1
+
+        txthoras.config(text=str(h))
+        txtminutos.config(text=str(m))
+        txtsegundos.config(text=str(s))
+
+        if h == 0 and m == 0 and s == 0:
+            respuesta = messagebox.askyesno("Tiempo expirado!","¿Desea continuar jugando?")
+            if respuesta == True:
+                h = int(configuracion[3][0])
+                m = int(configuracion[3][1])
+                s = int(configuracion[3][2])
+                cronómetro()
+                return
+            else:
+                cerrar()
+                return
+        
+        juego.after(1000,timer)
+
+    def cronómetro():
+        global h
+        global m
+        global s
+        global variableIniciar
+
+        s += 1
+        if s > 59:
+            s = 0
+            m += 1
+            if m > 59:
+                m = 0
+                h += 1
+        
+        txthoras.config(text=str(h))
+        txtminutos.config(text=str(m))
+        txtsegundos.config(text=str(s))
+        
+        juego.after(1000,cronómetro)
+        
 
     def borrarJugada():
         pass
@@ -44,15 +221,15 @@ def jugar():
     def Cargar():
         pass
 
-    def timer():
-        pass
-
     def horaActualizar():
         pass
 
     def cerrar():
+        global variableIniciar
         juego.destroy()
         raiz.deiconify()
+        variableIniciar = 0
+        h,m,s = 0,0,0
         return
     
     raiz.withdraw()
@@ -63,7 +240,6 @@ def jugar():
     juego.title("Futoshiki")
 
     #variables utiles
-    variableIniciar = 0
 
     futoshikitxt = Label(juego,text="FUTOSHIKI",font=("cambria", 24),bg="firebrick",fg="white",relief=GROOVE).place(x=200,y=5,width=200)
 
@@ -80,38 +256,39 @@ def jugar():
     niveltxt = Label(juego,text="NIVEL "+nivel,bg="#292929",fg="white").place(x=260,y=55)
     txt = Label(juego,text="Nombre del jugador:",bg="#292929",fg="white").place(x=10,y=90)
     nombre = StringVar()
-    entryNombre = Entry(juego,textvariable=nombre).place(x=140,y=90,width=300)
+    entryNombre = Entry(juego,textvariable=nombre)
+    entryNombre.place(x=140,y=90,width=300)
 
     #cuadricula
-    btn00 = Button(juego,relief=RIDGE,command=lambda: presionar(0,0))
-    btn01 = Button(juego,relief=RIDGE,command=lambda: presionar(0,1))
-    btn02 = Button(juego,relief=RIDGE,command=lambda: presionar(0,2))
-    btn03 = Button(juego,relief=RIDGE,command=lambda: presionar(0,3))
-    btn04 = Button(juego,relief=RIDGE,command=lambda: presionar(0,4))
+    btn00 = Button(juego,relief=RIDGE,command=lambda: presionar(btn00,0,0))
+    btn01 = Button(juego,relief=RIDGE,command=lambda: presionar(btn01,0,1))
+    btn02 = Button(juego,relief=RIDGE,command=lambda: presionar(btn02,0,2))
+    btn03 = Button(juego,relief=RIDGE,command=lambda: presionar(btn03,0,3))
+    btn04 = Button(juego,relief=RIDGE,command=lambda: presionar(btn04,0,4))
     
-    btn10 = Button(juego,relief=RIDGE,command=lambda: presionar(1,0))
-    btn11 = Button(juego,relief=RIDGE,command=lambda: presionar(1,1))
-    btn12 = Button(juego,relief=RIDGE,command=lambda: presionar(1,2))
-    btn13 = Button(juego,relief=RIDGE,command=lambda: presionar(1,3))
-    btn14 = Button(juego,relief=RIDGE,command=lambda: presionar(1,4))
+    btn10 = Button(juego,relief=RIDGE,command=lambda: presionar(btn10,1,0))
+    btn11 = Button(juego,relief=RIDGE,command=lambda: presionar(btn11,1,1))
+    btn12 = Button(juego,relief=RIDGE,command=lambda: presionar(btn12,1,2))
+    btn13 = Button(juego,relief=RIDGE,command=lambda: presionar(btn13,1,3))
+    btn14 = Button(juego,relief=RIDGE,command=lambda: presionar(btn14,1,4))
 
-    btn20 = Button(juego,relief=RIDGE,command=lambda: presionar(2,0))
-    btn21 = Button(juego,relief=RIDGE,command=lambda: presionar(2,1))
-    btn22 = Button(juego,relief=RIDGE,command=lambda: presionar(2,2))
-    btn23 = Button(juego,relief=RIDGE,command=lambda: presionar(2,3))
-    btn24 = Button(juego,relief=RIDGE,command=lambda: presionar(2,4))
+    btn20 = Button(juego,relief=RIDGE,command=lambda: presionar(btn20,2,0))
+    btn21 = Button(juego,relief=RIDGE,command=lambda: presionar(btn21,2,1))
+    btn22 = Button(juego,relief=RIDGE,command=lambda: presionar(btn22,2,2))
+    btn23 = Button(juego,relief=RIDGE,command=lambda: presionar(btn23,2,3))
+    btn24 = Button(juego,relief=RIDGE,command=lambda: presionar(btn24,2,4))
 
-    btn30 = Button(juego,relief=RIDGE,command=lambda: presionar(3,0))
-    btn31 = Button(juego,relief=RIDGE,command=lambda: presionar(3,1))
-    btn32 = Button(juego,relief=RIDGE,command=lambda: presionar(3,2))
-    btn33 = Button(juego,relief=RIDGE,command=lambda: presionar(3,3))
-    btn34 = Button(juego,relief=RIDGE,command=lambda: presionar(3,4))
+    btn30 = Button(juego,relief=RIDGE,command=lambda: presionar(btn30,3,0))
+    btn31 = Button(juego,relief=RIDGE,command=lambda: presionar(btn31,3,1))
+    btn32 = Button(juego,relief=RIDGE,command=lambda: presionar(btn32,3,2))
+    btn33 = Button(juego,relief=RIDGE,command=lambda: presionar(btn33,3,3))
+    btn34 = Button(juego,relief=RIDGE,command=lambda: presionar(btn34,3,4))
 
-    btn40 = Button(juego,relief=RIDGE,command=lambda: presionar(4,0))
-    btn41 = Button(juego,relief=RIDGE,command=lambda: presionar(4,1))
-    btn42 = Button(juego,relief=RIDGE,command=lambda: presionar(4,2))
-    btn43 = Button(juego,relief=RIDGE,command=lambda: presionar(4,3))
-    btn44 = Button(juego,relief=RIDGE,command=lambda: presionar(4,4))
+    btn40 = Button(juego,relief=RIDGE,command=lambda: presionar(btn40,4,0))
+    btn41 = Button(juego,relief=RIDGE,command=lambda: presionar(btn41,4,1))
+    btn42 = Button(juego,relief=RIDGE,command=lambda: presionar(btn42,4,2))
+    btn43 = Button(juego,relief=RIDGE,command=lambda: presionar(btn43,4,3))
+    btn44 = Button(juego,relief=RIDGE,command=lambda: presionar(btn44,4,4))
 
     objetosBotones = [[(btn00),(btn01),(btn02),(btn03),(btn04)],\
                       [(btn10),(btn11),(btn12),(btn13),(btn14)],\
@@ -121,12 +298,13 @@ def jugar():
 
             #botones numeros
 
-    btnnum1 = Button(juego,text="1",bg="violet red",command=lambda: presionar_numero(1))
-    btnnum2 = Button(juego,text="2",bg="orange",command=lambda: presionar_numero(2))
-    btnnum3 = Button(juego,text="3",bg="dark turquoise",command=lambda: presionar_numero(3))
-    btnnum4 = Button(juego,text="4",bg="orchid",command=lambda: presionar_numero(4))
-    btnnum5 = Button(juego,text="5",bg="gold",command=lambda: presionar_numero(5))
-    
+    btnnum1 = Button(juego,text="1",bg="violet red",command=lambda: presionar_numero(1,btnnum1))
+    btnnum2 = Button(juego,text="2",bg="orange",command=lambda: presionar_numero(2,btnnum2))
+    btnnum3 = Button(juego,text="3",bg="dark turquoise",command=lambda: presionar_numero(3,btnnum3))
+    btnnum4 = Button(juego,text="4",bg="orchid",command=lambda: presionar_numero(4,btnnum4))
+    btnnum5 = Button(juego,text="5",bg="gold",command=lambda: presionar_numero(5,btnnum5))
+    listaBotonesNumero = [btnnum1,btnnum2,btnnum3,btnnum4,btnnum5]
+    colores = ["violet red","orange","dark turquoise","orchid","gold"]
 
     #botones generales
 
@@ -251,21 +429,28 @@ def jugar():
         txtsegundos = Label(juego,relief=GROOVE,bg="#F0F0F0").place(x=106,y=521,width=58,height=40)
     
         if configuracion[1][0] == 1:
-            txthoras = Label(juego,text="0",relief=GROOVE,bg="#F0F0F0").place(x=20,y=521,width=38,height=40)
-            txtminutos = Label(juego,text="0",relief=GROOVE,bg="#F0F0F0").place(x=56,y=521,width=56,height=40)
-            txtsegundos = Label(juego,text="0",relief=GROOVE,bg="#F0F0F0").place(x=106,y=521,width=58,height=40)
+            txthoras = Label(juego,text="0",relief=GROOVE,bg="#F0F0F0")
+            txthoras.place(x=20,y=521,width=38,height=40)
+            txtminutos = Label(juego,text="0",relief=GROOVE,bg="#F0F0F0")
+            txtminutos.place(x=56,y=521,width=56,height=40)
+            txtsegundos = Label(juego,text="0",relief=GROOVE,bg="#F0F0F0")
+            txtsegundos.place(x=106,y=521,width=58,height=40)
         
         if configuracion[1][2] == 1:
-            txthoras = Label(juego,text=str(configuracion[3][0]),relief=GROOVE,bg="#F0F0F0").place(x=20,y=521,width=38,height=40)
-            txtminutos = Label(juego,text=str(configuracion[3][1]),relief=GROOVE,bg="#F0F0F0").place(x=56,y=521,width=56,height=40)
-            txtsegundos = Label(juego,text=str(configuracion[3][2]),relief=GROOVE,bg="#F0F0F0").place(x=106,y=521,width=58,height=40)
+            txthoras = Label(juego,text=str(configuracion[3][0]),relief=GROOVE,bg="#F0F0F0")
+            txthoras.place(x=20,y=521,width=38,height=40)
+            txtminutos = Label(juego,text=str(configuracion[3][1]),relief=GROOVE,bg="#F0F0F0")
+            txtminutos.place(x=56,y=521,width=56,height=40)
+            txtsegundos = Label(juego,text=str(configuracion[3][2]),relief=GROOVE,bg="#F0F0F0")
+            txtsegundos.place(x=106,y=521,width=58,height=40)
         
 
     #juego en cuadricula
     numeroPartida = random.randint(0,2)
     partida = totalJugadas[nivelJuego][numeroPartida]
 
-    
+    cuadriculaBotones = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]]]
+
     for simbolo in partida:
         k = 0
         f = simbolo[1]
@@ -277,6 +462,7 @@ def jugar():
                     if f == fila and c == columna:
                         obj = objetosBotones[fila][columna]
                         obj.config(text=elemento)
+                        cuadriculaBotones[fila][columna].append(elemento)
                         k = 1
                         break
                 if k == 1:
@@ -285,10 +471,8 @@ def jugar():
             for fila,fcoordenadas in enumerate(coordenadas):
                 for columna,cObj in enumerate(fcoordenadas):
                     if f == fila and c == columna:
-                        print(fila,columna,f,c,cObj)
                         Cx = coordenadas[fila][columna][0]
                         Cy = coordenadas[fila][columna][1]
-                        print(Cx,Cy,elemento)
                         if elemento == "<":
                             txt = Label(juego,text="<",font=("Arial",13),bg="#292929",fg="white").place(x=Cx+40,y=Cy+10,width=15)
                         if elemento == ">":
@@ -303,8 +487,8 @@ def jugar():
                 if k == 1:
                     break
                 
-        Xbtn = Button(juego,text="X",command=cerrar)
-        Xbtn.place(x=570,y=0)
+    Xbtn = Button(juego,text="X",command=cerrar)
+    Xbtn.place(x=570,y=0)
                         
 
 
@@ -351,7 +535,6 @@ def configurar():
             checkbtn6.deselect()
             configuracion[1] = [0,1,0]
         elif num == 3:
-            print(1)
             entryhoras.config(state="normal")
             entryminutos.config(state='normal')
             entrysegundos.config(state='normal')
@@ -485,6 +668,9 @@ top10facil = []
 top10intermedio = []
 top10dificil = []
 actual = []
+h,m,s = 0,0,0
+botonNumero = 0
+variableIniciar = 0
 
 #jugadas
 
