@@ -12,11 +12,26 @@ import random
 
 ## funciones ##
 def jugar():
+
+    def actualizar():
+        global variableIniciar
+        for fila in cuadriculaBotones:
+            for columna in fila:
+                if columna == []:
+                    return
+                
+        variableIniciar = 0
+        messagebox.showinfo("¡Ganaste!","¡Felicidades! Juego terminado con éxito.")
+        h,m,s = 0,0,0
+        Top10listas(Top10facil,Top10intermedio,Top10dificil)
+        archivosTop10()
     
     def presionar(obj,fila,columna):
         global botonNumero
-        print(botonNumero)
         if variableIniciar == 0:
+            return
+        if botonNumero == 0:
+            messagebox.showinfo("!","Seleccione un dígito")
             return
         obj.config(text=str(botonNumero))
 
@@ -55,13 +70,11 @@ def jugar():
 
         auxboton = botonNumero
         for simbolo in partida:
-            print(simbolo)
             k = 0
             elemento = simbolo[0]
             ifObj = simbolo[1]
             icObj = simbolo[2]
             if elemento.isdigit() == True:
-                print("digito")
                 if ifObj == fila and icObj == columna:
                     obj = objetosBotones[fila][columna]
                     obj.config(bg="red")
@@ -102,7 +115,6 @@ def jugar():
                                 elemento2 = auxboton
                             except:
                                 break
-                        print(elemento2,botonNumero)
                         if botonNumero > int(elemento2):
                             obj.config(bg="red")
                             messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de menor")
@@ -128,11 +140,9 @@ def jugar():
                             try:
                                 botonNumero = cuadriculaBotones[fila][columna-1][0]
                                 elemento2 = auxboton
-                                print("boton",texto)
                             except:
                                 break
                             
-                        print(elemento2,botonNumero)
                         if botonNumero < elemento2:
                             obj.config(bg="red")
                             messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
@@ -161,13 +171,11 @@ def jugar():
                             except:
                                 break
                             
-                        print(elemento2,botonNumero)
                         if botonNumero < int(elemento2):
                             obj.config(bg="red")
                             messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
                             obj.config(bg="SystemButtonFace")
                             obj.config(text=texto)
-                            print("boton",texto)
                             botonNumero = auxboton
                             return
                         
@@ -189,7 +197,6 @@ def jugar():
                             except:
                                 break
                             
-                        print(elemento2,botonNumero)
                         if botonNumero > elemento2:
                             obj.config(bg="red")
                             messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de menor")
@@ -199,14 +206,13 @@ def jugar():
                             return
 
         botonNumero = auxboton
-        print("boton: ",botonNumero)
         
         if len(cuadriculaBotones[fila][columna]) > 0:
             cuadriculaBotones[fila][columna][0] = botonNumero
         else:
             cuadriculaBotones[fila][columna].append(botonNumero)
-        print(cuadriculaBotones)
-
+        actualizar()
+        
     def presionar_numero(num,obj):
         global botonNumero
         if variableIniciar == 0:
@@ -219,6 +225,7 @@ def jugar():
 
     def iniciar():
         global variableIniciar
+        global nombre
         global h
         global m
         global s
@@ -243,6 +250,17 @@ def jugar():
         global m
         global s
         global variableIniciar
+        global tiempoJugado
+
+        if variableIniciar == 0:
+            print(tiempoJugado)
+            txthoras.config(text=str(h))
+            txtminutos.config(text=str(m))
+            txtsegundos.config(text=str(s))
+            return
+
+        cronómetro_timer()
+        
         s -= 1
         if s < 0 and m != 0:
             s = 59
@@ -269,11 +287,35 @@ def jugar():
         
         juego.after(1000,timer)
 
+    def cronómetro_timer():
+        global tiempoJugado
+        global Ch
+        global Cm
+        global Cs
+
+        Cs += 1
+        if Cs > 59:
+            Cs = 0
+            Cm += 1
+            if Cm > 59:
+                Cm = 0
+                Ch += 1
+
+        tiempoJugado = str(Ch)+":"+str(Cm)+":"+str(Cs)
+        
     def cronómetro():
+        global tiempoJugado
         global h
         global m
         global s
         global variableIniciar
+
+        if variableIniciar == 0:
+            tiempoJugado = str(h)+":"+str(m)+":"+str(s)
+            txthoras.config(text=str(h))
+            txtminutos.config(text=str(m))
+            txtsegundos.config(text=str(s))
+            return
 
         s += 1
         if s > 59:
@@ -291,6 +333,7 @@ def jugar():
         
 
     def borrarJugada():
+                
         pass
 
     def terminar():
@@ -299,8 +342,103 @@ def jugar():
     def borrar():
         pass
 
+    def Top10listas(Top10facil,Top10intermedio,Top10dificil):  
+        if configuracion[0][0] == 1:
+            if Top10facil == []:
+                Top10facil.append([nombre,tiempoJugado])
+                return
+            for i,elemento in enumerate(Top10facil):
+                tiempo = elemento[1].split(":")
+                hh = int(tiempo[0])
+                mm = int(tiempo[1])
+                ss = int(tiempo[2])
+                if hh > h or mm > m or ss > s:
+                    Top10facil.insert(i,[nombre,tiempoJugado])
+                    return
+            Top10facil.append([nombre,tiempoJugado])
+            
+        if configuracion[0][1] == 1:
+            if Top10intermedio == []:
+                Top10intermedio.append([nombre,tiempoJugado])
+                return
+            for i,elemento in enumerate(Top10intermedio):
+                tiempo = elemento[1].split(":")
+                hh = int(tiempo[0])
+                mm = int(tiempo[1])
+                ss = int(tiempo[2])
+                if hh > h or mm > m or ss > s:
+                    Top10intermedio.insert(i,[nombre,tiempoJugado])
+                    return
+            Top10intermedio.append([nombre,tiempoJugado])
+                
+        if configuracion[0][2] == 1:
+            if Top10dificil == []:
+                Top10dificil.append([nombre,tiempoJugado])
+                return
+            for i,elemento in enumerate(Top10dificil):
+                tiempo = elemento[1].split(":")
+                hh = int(tiempo[0])
+                mm = int(tiempo[1])
+                ss = int(tiempo[2])
+                if hh > h or mm > m or ss > s:
+                    Top10dificil.insert(i,[nombre,tiempoJugado])
+                    return
+            Top10dificil.append([nombre,tiempoJugado])
+
+
+    def archivosTop10():
+        archivo = open("futoshiki2021top10.dat","wb")
+        pickle.dump([Top10facil,Top10intermedio,Top10dificil],archivo)
+        archivo.close()
+
+
     def Top10():
-        pass
+        top10 = Toplevel(juego)
+        top10.resizable(False,False)
+        top10.geometry("580x360")
+        top10.configure(bg="#292929")
+        top10.title("Top 10")
+
+        txt = Label(top10,text="Top 10",bg="#292929",fg="white",font=("Arial",18,"underline")).place(x=220,y=0)
+        faciltxt = Label(top10,text="Nivel fácil",fg="white",bg="#292929").place(x=25,y=40)
+        intermediotxt = Label(top10,text="Nivel intermedio",fg="white",bg="#292929").place(x=225,y=40)
+        dificiltxt = Label(top10,text="Nivel difícil",fg="white",bg="#292929").place(x=425,y=40)
+        
+        n=3
+        Cx=20
+        while n != 0:
+            txt = Label(top10,text="JUGADOR",fg="white",bg="#292929").place(x=Cx+10,y=60)
+            txt = Label(top10,text="TIEMPO",fg="white",bg="#292929").place(x=Cx+100,y=60)
+            txt1 = Label(top10,text="1-",fg="white",bg="#292929").place(x=Cx,y=100)
+            txt2 = Label(top10,text="2-",fg="white",bg="#292929").place(x=Cx,y=120)
+            txt3 = Label(top10,text="3-",fg="white",bg="#292929").place(x=Cx,y=140)
+            txt4 = Label(top10,text="4-",fg="white",bg="#292929").place(x=Cx,y=160)
+            txt5 = Label(top10,text="5-",fg="white",bg="#292929").place(x=Cx,y=180)
+            txt6 = Label(top10,text="6-",fg="white",bg="#292929").place(x=Cx,y=200)
+            txt7 = Label(top10,text="7-",fg="white",bg="#292929").place(x=Cx,y=220)
+            txt8 = Label(top10,text="8-",fg="white",bg="#292929").place(x=Cx,y=240)
+            txt9 = Label(top10,text="9-",fg="white",bg="#292929").place(x=Cx,y=260)
+            txt10 = Label(top10,text="10-",fg="white",bg="#292929").place(x=Cx-5,y=280)
+            Cx += 200
+            n -= 1
+
+        try:
+            archivo = open("futoshiki2021top10.dat","rb")
+            top10listas = pickle.load(archivo)
+            Cx = 20
+            for nivel in top10listas:
+                Cy = 100
+                for jugador in nivel:
+                    txtnombre = Label(top10,text=jugador[0],fg="white",bg="#292929").place(x=Cx+15,y=Cy)
+                    txttiempo = Label(top10,text=jugador[1],fg="white",bg="#292929").place(x=Cx+100,y=Cy)
+                    Cy += 20
+                Cx += 200
+
+        except:
+            pass
+
+        
+        
 
     def Guardar():
         pass
@@ -342,8 +480,7 @@ def jugar():
             nivelJuego = 2
     niveltxt = Label(juego,text="NIVEL "+nivel,bg="#292929",fg="white").place(x=260,y=55)
     txt = Label(juego,text="Nombre del jugador:",bg="#292929",fg="white").place(x=10,y=90)
-    nombre = StringVar()
-    entryNombre = Entry(juego,textvariable=nombre)
+    entryNombre = Entry(juego)
     entryNombre.place(x=140,y=90,width=300)
 
     #cuadricula
@@ -399,7 +536,7 @@ def jugar():
     btnBorrarJugada = Button(juego,text="BORRAR\nJUGADA",bg="orange",command=iniciar)
     btnTerminar = Button(juego,text="TERMINAR\nJUEGO",bg="dark turquoise",command=iniciar)
     btnBorrar = Button(juego,text="BORRAR\nJUEGO",bg="orchid",command=iniciar)
-    btnTop10 = Button(juego,text="TOP\n10",bg="gold",command=iniciar)
+    btnTop10 = Button(juego,text="TOP\n10",bg="gold",command=Top10)
 
     btnGuardar= Button(juego,text="GUARDAR JUEGO",command=iniciar)
     btnCargar = Button(juego,text="CARGAR JUEGO",command=iniciar)
@@ -751,13 +888,25 @@ def configurar():
 
 ## programa principal ##
 configuracion = [[1,0,0],[1,0,0],[1,0]]
-top10facil = []
-top10intermedio = []
-top10dificil = []
 actual = []
 h,m,s = 0,0,0
+Ch,Cm,Cs = 0,0,0
 botonNumero = 0
 variableIniciar = 0
+tiempoJugado = ""
+nombre = ""
+
+try:
+    archivo = open("futoshiki2021top10.dat","rb")
+    top10listas = pickle.load(archivo)
+    Top10facil = top10listas[0]
+    Top10intermedio = top10listas[1]
+    Top10dificil = top10listas[2]
+except:
+    Top10facil = []
+    Top10intermedio = []
+    Top10dificil = []
+
 
 #jugadas
 
