@@ -14,6 +14,8 @@ import random
 def jugar():
     
     def presionar(obj,fila,columna):
+        global botonNumero
+        print(botonNumero)
         if variableIniciar == 0:
             return
         obj.config(text=str(botonNumero))
@@ -26,25 +28,32 @@ def jugar():
                 filas = int(cuadriculaBotones[fila][i][0])
             except:
                 filas = 0
-            print(filas)
             try:
                 columnas = int(cuadriculaBotones[i][columna][0])
             except:
                 columnas = 0
-            print(columnas)
             if filas == botonNumero:
                 obj.config(bg="red")
                 messagebox.showinfo("!","Jugada no válida: El elemento ya se encuentra en la fila")
-                obj.config(text="")
+                try:
+                    texto = str(cuadriculaBotones[fila][columna][0])
+                except:
+                    texto = ""
+                obj.config(text=texto)
                 obj.config(bg="SystemButtonFace")
                 return
             if columnas == botonNumero:
                 obj.config(bg="red")
                 messagebox.showinfo("!","Jugada no válida: El elemento ya se encuentra en la columna")
-                obj.config(text="")
+                try:
+                    texto = str(cuadriculaBotones[fila][columna][0])
+                except:
+                    texto = ""
+                obj.config(text=texto)
                 obj.config(bg="SystemButtonFace")
                 return
-                
+
+        auxboton = botonNumero
         for simbolo in partida:
             print(simbolo)
             k = 0
@@ -52,7 +61,7 @@ def jugar():
             ifObj = simbolo[1]
             icObj = simbolo[2]
             if elemento.isdigit() == True:
-                print(1)
+                print("digito")
                 if ifObj == fila and icObj == columna:
                     obj = objetosBotones[fila][columna]
                     obj.config(bg="red")
@@ -62,58 +71,136 @@ def jugar():
                     k = 1
                     return
             #else:
-            if ifObj == fila and icObj == columna:
-                print(elemento)
-                print(fila,columna)
-                if elemento == "<":
-                    try:
-                        elemento2 = cuadriculaBotones[fila][columna+1][0]
-                    except:
-                        elemento2 = 0
-                    print(elemento2)
-                    if botonNumero > elemento2:
-                        obj.config(bg="red")
-                        messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de menor")
-                        obj.config(bg="SystemButtonFace")
-                        obj.config(text=" ")    
-                        return
-                if elemento == ">":
-                    try:
-                        elemento2 = cuadriculaBotones[fila][columna+1][0]
-                    except:
-                        elemento2 = 0
-                    print(elemento2)
-                    if botonNumero < elemento2:
-                        obj.config(bg="red")
-                        messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
-                        obj.config(bg="SystemButtonFace")
-                        obj.config(text=" ")
-                        return
-                if elemento == "˄":
-                    try:
-                        elemento2 = cuadriculaBotones[fila-1][columna][0]
-                    except:
-                        elemento2 = 0
-                    print(elemento2)
-                    if botonNumero < elemento2:
-                        obj.config(bg="red")
-                        messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
-                        obj.config(bg="SystemButtonFace")
-                        obj.config(text=" ")
-                        return
-                if elemento == "˅":
-                    try:
-                        elemento2 = cuadriculaBotones[fila-1][columna][0]
-                    except:
-                        elemento2 = 0
-                    print(elemento2)
-                    if botonNumero > elemento2:
-                        obj.config(bg="red")
-                        messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de menor")
-                        obj.config(bg="SystemButtonFace")
-                        obj.config(text=" ")
-                        return
+            contador = 1
+            flag = -1
+            for n in range(contador):
+                if (ifObj == fila and icObj == columna) or (ifObj == fila+1 and icObj == columna) or (ifObj == fila and icObj == columna-1):
+                    if ifObj == fila and icObj == columna and flag != 0:
+                        contador = 0
+                        flag = 0
+                    if ifObj == fila+1 and icObj == columna and flag != 1:
+                        contador = 1
+                        flag = 1
+                    if ifObj == fila and icObj == columna-1 and flag != 2:
+                        contador = 2
+                        flag = 2
+                                            
+                    if elemento == "<":
+                        try:
+                            elemento2 = cuadriculaBotones[fila][columna+1][0]
+                        except:
+                            elemento2 = 6
 
+                        try:
+                            texto = str(cuadriculaBotones[fila][columna][0])
+                        except:
+                            texto = ""
+                        
+                        if flag == 2:
+                            try:
+                                botonNumero = cuadriculaBotones[fila][columna-1][0]
+                                elemento2 = auxboton
+                            except:
+                                break
+                        print(elemento2,botonNumero)
+                        if botonNumero > int(elemento2):
+                            obj.config(bg="red")
+                            messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de menor")
+                            obj.config(bg="SystemButtonFace")
+                            obj.config(text=texto)
+                            botonNumero = auxboton
+                            return
+                        
+                    if elemento == ">":
+                        try:
+                            elemento2 = cuadriculaBotones[fila][columna+1][0]
+                            
+                        except:
+                            elemento2 = 0
+                            
+
+                        try:
+                            texto = str(cuadriculaBotones[fila][columna][0])
+                        except:
+                            texto = ""
+                            
+                        if flag == 2:
+                            try:
+                                botonNumero = cuadriculaBotones[fila][columna-1][0]
+                                elemento2 = auxboton
+                                print("boton",texto)
+                            except:
+                                break
+                            
+                        print(elemento2,botonNumero)
+                        if botonNumero < elemento2:
+                            obj.config(bg="red")
+                            messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
+                            obj.config(bg="SystemButtonFace")
+                            obj.config(text=texto)
+                            botonNumero = auxboton
+                            return
+                        
+                    if elemento == "˄":
+                        try:
+                            elemento2 = cuadriculaBotones[fila-1][columna][0]
+                            
+                        except:
+                            elemento2 = 0
+                            
+
+                        try:
+                            texto = str(cuadriculaBotones[fila][columna][0])
+                        except:
+                            texto = ""
+                            
+                        if flag == 1:
+                            try:
+                                botonNumero = cuadriculaBotones[fila+1][columna][0]
+                                elemento2 = auxboton
+                            except:
+                                break
+                            
+                        print(elemento2,botonNumero)
+                        if botonNumero < int(elemento2):
+                            obj.config(bg="red")
+                            messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
+                            obj.config(bg="SystemButtonFace")
+                            obj.config(text=texto)
+                            print("boton",texto)
+                            botonNumero = auxboton
+                            return
+                        
+                    if elemento == "˅":
+                        try:
+                            elemento2 = cuadriculaBotones[fila-1][columna][0]
+                        except:
+                            elemento2 = 6
+
+                        try:
+                            texto = str(cuadriculaBotones[fila][columna][0])
+                        except:
+                            texto = ""
+                            
+                        if flag == 1:
+                            try:
+                                botonNumero = cuadriculaBotones[fila+1][columna][0]
+                                elemento2 = auxboton
+                            except:
+                                break
+                            
+                        print(elemento2,botonNumero)
+                        if botonNumero > elemento2:
+                            obj.config(bg="red")
+                            messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de menor")
+                            obj.config(bg="SystemButtonFace")
+                            obj.config(text=texto)
+                            botonNumero = auxboton
+                            return
+
+        botonNumero = auxboton
+        print("boton: ",botonNumero)
+        
         if len(cuadriculaBotones[fila][columna]) > 0:
             cuadriculaBotones[fila][columna][0] = botonNumero
         else:
