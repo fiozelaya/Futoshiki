@@ -211,6 +211,7 @@ def jugar():
             cuadriculaBotones[fila][columna][0] = botonNumero
         else:
             cuadriculaBotones[fila][columna].append(botonNumero)
+        movimientos.append([obj,fila,columna])
         actualizar()
         
     def presionar_numero(num,obj):
@@ -235,6 +236,7 @@ def jugar():
             messagebox.showerror("Error","No ha registrado el nombre del jugador")
             return
         btnIniciar.config(state="disabled")
+        btnBorrarJugada.config(state="normal")
         if configuracion[1][1] == 1:
             pass
         elif configuracion[1][0] == 1:
@@ -333,8 +335,20 @@ def jugar():
         
 
     def borrarJugada():
-                
-        pass
+        try:
+            movimiento = movimientos[-1]
+        except IndexError:
+            messagebox.showinfo("!","No hay más jugadas para borrar")
+            return
+        
+        obj = movimiento[0]
+        fila = movimiento[1]
+        columna = movimiento[2]
+        del movimientos[-1]
+        
+        obj.config(text="")
+        cuadriculaBotones[fila][columna] = []
+        
 
     def terminar():
         pass
@@ -465,7 +479,8 @@ def jugar():
     juego.title("Futoshiki")
 
     #variables utiles
-
+    movimientos = []
+    
     futoshikitxt = Label(juego,text="FUTOSHIKI",font=("cambria", 24),bg="firebrick",fg="white",relief=GROOVE).place(x=200,y=5,width=200)
 
     for i,level in enumerate(configuracion[0]):
@@ -533,7 +548,7 @@ def jugar():
     #botones generales
 
     btnIniciar = Button(juego,text="INICIAR\nJUEGO",bg="violet red",command=iniciar)
-    btnBorrarJugada = Button(juego,text="BORRAR\nJUGADA",bg="orange",command=iniciar)
+    btnBorrarJugada = Button(juego,text="BORRAR\nJUGADA",bg="orange",command=borrarJugada,state="disabled")
     btnTerminar = Button(juego,text="TERMINAR\nJUEGO",bg="dark turquoise",command=iniciar)
     btnBorrar = Button(juego,text="BORRAR\nJUEGO",bg="orchid",command=iniciar)
     btnTop10 = Button(juego,text="TOP\n10",bg="gold",command=Top10)
