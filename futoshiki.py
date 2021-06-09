@@ -237,6 +237,8 @@ def jugar():
             return
         btnIniciar.config(state="disabled")
         btnBorrarJugada.config(state="normal")
+        btnTerminar.config(state="normal")
+        btnBorrar.config(state="normal")
         if configuracion[1][1] == 1:
             pass
         elif configuracion[1][0] == 1:
@@ -351,10 +353,36 @@ def jugar():
         
 
     def terminar():
-        pass
+        respuesta = messagebox.askyesno("!","¿Desea terminar el juego? Se perderá la partida actual.")
+        if respuesta == False:
+            return
+
+        juego.destroy()
+        jugar()
+        
 
     def borrar():
-        pass
+        respuesta = messagebox.askyesno("!","¿Desea borrar el juego? Se borrarán todos los movimientos.")
+        if respuesta == False:
+            return
+
+        l = len(movimientos)
+        while l != 0:
+            try:
+                movimiento = movimientos[-1]
+            except IndexError:
+                print(cuadriculaBotones)
+                return
+            
+            obj = movimiento[0]
+            fila = movimiento[1]
+            columna = movimiento[2]
+            del movimientos[-1]
+            
+            obj.config(text="")
+            cuadriculaBotones[fila][columna] = []
+            
+        
 
     def Top10listas(Top10facil,Top10intermedio,Top10dificil):  
         if configuracion[0][0] == 1:
@@ -549,8 +577,8 @@ def jugar():
 
     btnIniciar = Button(juego,text="INICIAR\nJUEGO",bg="violet red",command=iniciar)
     btnBorrarJugada = Button(juego,text="BORRAR\nJUGADA",bg="orange",command=borrarJugada,state="disabled")
-    btnTerminar = Button(juego,text="TERMINAR\nJUEGO",bg="dark turquoise",command=iniciar)
-    btnBorrar = Button(juego,text="BORRAR\nJUEGO",bg="orchid",command=iniciar)
+    btnTerminar = Button(juego,text="TERMINAR\nJUEGO",bg="dark turquoise",command=terminar,state="disabled")
+    btnBorrar = Button(juego,text="BORRAR\nJUEGO",bg="orchid",command=borrar,state="disabled")
     btnTop10 = Button(juego,text="TOP\n10",bg="gold",command=Top10)
 
     btnGuardar= Button(juego,text="GUARDAR JUEGO",command=iniciar)
