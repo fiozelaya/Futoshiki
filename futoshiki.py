@@ -11,8 +11,15 @@ import random
 
 
 ## funciones ##
-def jugar():
+def Guardar(configuracion,cuadriculaBotones,movimientos2,numeroPartida,coordenadas,nombre,h,m,s,Ch,Cm,Cs):
+    archivo = open("futoshiki2021juegoactual.dat","wb")
+    print(cuadriculaBotones)
+    pickle.dump([configuracion,cuadriculaBotones,movimientos2,numeroPartida,coordenadas,nombre,[h,m,s,Ch,Cm,Cs]],archivo)
+    archivo.close()
 
+        
+def jugar():
+    global cuadriculaBotones
     def actualizar():
         global variableIniciar
         for fila in cuadriculaBotones:
@@ -25,6 +32,70 @@ def jugar():
         h,m,s = 0,0,0
         Top10listas(Top10facil,Top10intermedio,Top10dificil)
         archivosTop10()
+
+
+    def Cargar(txtlista,objetosBotones,btnIniciar,btnBorrarJugada,btnTerminar,btnBorrar,btnGuardar,entryNombre):
+        
+        global h
+        global m
+        global s
+        global Ch
+        global Cm
+        global Cs
+        global nombre
+        global configuracion
+        #global cuadriculaBotones
+        global movimientos2
+        global partida
+
+        for txt in txtlista:
+            txt.destroy()
+        
+        
+        archivo = open("futoshiki2021juegoactual.dat","rb")
+        archivoPartida=pickle.load(archivo)
+        
+        configuracion = archivoPartida[0]
+        cuadriculaBotones = archivoPartida[1]
+        
+        movimientos2 = archivoPartida[2]
+        numeroPartida = archivoPartida[3]
+        coordenadas = archivoPartida[4]
+        nombre = archivoPartida[5]
+        tiempo = archivoPartida[6]
+        h,m,s = tiempo[0],tiempo[1],tiempo[2]
+        Ch,Cm,Cs = tiempo[3],tiempo[4],tiempo[5]
+
+        fila = 0
+        while fila != 5: #fila
+            contador2 = 5
+            columna = 0
+            while columna != 5: #columna
+                obj = objetosBotones[fila][columna]
+                try:
+                    elemento = cuadriculaBotones[fila][columna][0]
+                    if not isinstance(elemento,str):
+                        obj.config(text=str(elemento))
+                except:
+                    obj.config(text="")
+                columna += 1
+            fila += 1
+
+
+
+        print(cuadriculaBotones)
+        desplegar_partida_cargar(numeroPartida,cuadriculaBotones)
+
+        archivo.close()
+        btnIniciar.config(state="normal")
+        btnBorrarJugada.config(state="disabled",command=lambda: borrarJugadaCargar(movimientos2))
+        btnTerminar.config(state="disabled")
+        btnBorrar.config(state="disabled",command=lambda: borrarCargar(movimientos2))
+        nombre = StringVar(value=nombre)
+        entryNombre.config(textvariable=nombre)
+
+
+
     
     def presionar(obj,fila,columna):
         global botonNumero
@@ -70,6 +141,7 @@ def jugar():
 
         auxboton = botonNumero
         for simbolo in partida:
+            print(simbolo,"\n")
             k = 0
             elemento = simbolo[0]
             ifObj = simbolo[1]
@@ -84,21 +156,23 @@ def jugar():
                     k = 1
                     return
             #else:
-            contador = 1
-            flag = -1
+            contador = 0
+            flag = 0
             for n in range(contador):
                 if (ifObj == fila and icObj == columna) or (ifObj == fila+1 and icObj == columna) or (ifObj == fila and icObj == columna-1):
                     if ifObj == fila and icObj == columna and flag != 0:
                         contador = 0
                         flag = 0
-                    if ifObj == fila+1 and icObj == columna and flag != 1:
+                    if ifObj == fila+1 and icObj == columna and flag != 1 and elemento != ">" and elemento != "<":
                         contador = 1
                         flag = 1
-                    if ifObj == fila and icObj == columna-1 and flag != 2:
+                    if ifObj == fila and icObj == columna-1 and flag != 2 and elemento != "˄" and elemento != "˅":
                         contador = 2
                         flag = 2
-                                            
+
+                    print(flag)         
                     if elemento == "<":
+                        print(1)
                         try:
                             elemento2 = cuadriculaBotones[fila][columna+1][0]
                         except:
@@ -110,20 +184,24 @@ def jugar():
                             texto = ""
                         
                         if flag == 2:
+                            print(12)
                             try:
                                 botonNumero = cuadriculaBotones[fila][columna-1][0]
                                 elemento2 = auxboton
                             except:
                                 break
-                        if botonNumero > int(elemento2):
+                        print(elemento2)
+                        if int(botonNumero) > int(elemento2):
                             obj.config(bg="red")
                             messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de menor")
                             obj.config(bg="SystemButtonFace")
                             obj.config(text=texto)
                             botonNumero = auxboton
                             return
-                        
+
+                    
                     if elemento == ">":
+                        print(2)
                         try:
                             elemento2 = cuadriculaBotones[fila][columna+1][0]
                             
@@ -137,13 +215,14 @@ def jugar():
                             texto = ""
                             
                         if flag == 2:
+                            print(22)
                             try:
                                 botonNumero = cuadriculaBotones[fila][columna-1][0]
                                 elemento2 = auxboton
                             except:
                                 break
                             
-                        if botonNumero < elemento2:
+                        if int(botonNumero) < int(elemento2):
                             obj.config(bg="red")
                             messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
                             obj.config(bg="SystemButtonFace")
@@ -171,7 +250,7 @@ def jugar():
                             except:
                                 break
                             
-                        if botonNumero < int(elemento2):
+                        if int(botonNumero) < int(elemento2):
                             obj.config(bg="red")
                             messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
                             obj.config(bg="SystemButtonFace")
@@ -197,7 +276,7 @@ def jugar():
                             except:
                                 break
                             
-                        if botonNumero > elemento2:
+                        if int(botonNumero) > int(elemento2):
                             obj.config(bg="red")
                             messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de menor")
                             obj.config(bg="SystemButtonFace")
@@ -206,12 +285,14 @@ def jugar():
                             return
 
         botonNumero = auxboton
-        
         if len(cuadriculaBotones[fila][columna]) > 0:
             cuadriculaBotones[fila][columna][0] = botonNumero
         else:
-            cuadriculaBotones[fila][columna].append(botonNumero)
+            cuadriculaBotones[fila][columna].append(botonNumero) #####################################
+
         movimientos.append([obj,fila,columna])
+        movimientos2.append([fila,columna])
+        
         actualizar()
         
     def presionar_numero(num,obj):
@@ -239,6 +320,8 @@ def jugar():
         btnBorrarJugada.config(state="normal")
         btnTerminar.config(state="normal")
         btnBorrar.config(state="normal")
+        btnGuardar.config(state="normal")
+        btnCargar.config(state="disabled")
         if configuracion[1][1] == 1:
             pass
         elif configuracion[1][0] == 1:
@@ -257,7 +340,6 @@ def jugar():
         global tiempoJugado
 
         if variableIniciar == 0:
-            print(tiempoJugado)
             txthoras.config(text=str(h))
             txtminutos.config(text=str(m))
             txtsegundos.config(text=str(s))
@@ -350,6 +432,24 @@ def jugar():
         
         obj.config(text="")
         cuadriculaBotones[fila][columna] = []
+
+
+    def borrarJugadaCargar(movimientos2):
+        try:
+            movimiento = movimientos2[-1]
+        except IndexError:
+            messagebox.showinfo("!","No hay más jugadas para borrar")
+            return
+        fila = movimiento[0]
+        columna = movimiento[1]
+        
+        for f,filaBoton in enumerate(objetosBotones):
+            for c,columnaBoton in enumerate(filaBoton):
+                if fila == f and c == columna:
+                    obj = objetosBotones[fila][columna]
+                    obj.config(text="")
+                    cuadriculaBotones[fila][columna] = []
+                    del movimientos2[-1]
         
 
     def terminar():
@@ -371,13 +471,39 @@ def jugar():
             try:
                 movimiento = movimientos[-1]
             except IndexError:
-                print(cuadriculaBotones)
                 return
             
             obj = movimiento[0]
             fila = movimiento[1]
             columna = movimiento[2]
             del movimientos[-1]
+            
+            obj.config(text="")
+            cuadriculaBotones[fila][columna] = []
+
+
+    def borrarCargar(movimientos2):
+        respuesta = messagebox.askyesno("!","¿Desea borrar el juego? Se borrarán todos los movimientos.")
+        if respuesta == False:
+            return
+
+        l = len(movimientos2)
+        while l != 0:
+            try:
+                movimiento = movimientos2[-1]
+            except IndexError:
+                return
+            
+            fila = movimiento[0]
+            columna = movimiento[1]
+
+            for f,filaBoton in enumerate(objetosBotones):
+                for c,columnaBoton in enumerate(filaBoton):
+                    if fila == f and c == columna:
+                        obj = objetosBotones[fila][columna]
+                        obj.config(text="")
+                        cuadriculaBotones[fila][columna] = []
+                        del movimientos2[-1]
             
             obj.config(text="")
             cuadriculaBotones[fila][columna] = []
@@ -479,17 +605,115 @@ def jugar():
         except:
             pass
 
+
+
+    def desplegar_partida():
+        global partida
+        global numeroPartida
+        numeroPartida = random.randint(0,2)
+        partida = totalJugadas[nivelJuego][numeroPartida]
+    
+
+        for simbolo in partida:
+            k = 0
+            f = simbolo[1]
+            c = simbolo[2]
+            elemento = simbolo[0]
+            if elemento.isdigit() == True:
+                for fila,fObj in enumerate(objetosBotones):
+                    for columna,cObj in enumerate(fObj):
+                        if f == fila and c == columna:
+                            obj = objetosBotones[fila][columna]
+                            obj.config(text=elemento)
+                            if len(cuadriculaBotones[fila][columna]) > 0:
+                                cuadriculaBotones[fila][columna][0] = elemento
+                            else:
+                                cuadriculaBotones[fila][columna].append(elemento)
+                            k = 1
+                            break
+                    if k == 1:
+                        break
+            else:
+                for fila,fcoordenadas in enumerate(coordenadas):
+                    for columna,cObj in enumerate(fcoordenadas):
+                        if f == fila and c == columna:
+                            Cx = coordenadas[fila][columna][0]
+                            Cy = coordenadas[fila][columna][1]
+                            if elemento == "<":
+                                txt = Label(juego,text="<",font=("Arial",13),bg="#292929",fg="white")
+                                txt.place(x=Cx+40,y=Cy+10,width=15)
+                            if elemento == ">":
+                                txt = Label(juego,text=">",font=("Arial",13),bg="#292929",fg="white")
+                                txt.place(x=Cx+40,y=Cy+10,width=15)
+                            if elemento == "˄":
+                                txt = Label(juego,text="˄",font=("Arial",13),bg="#292929",fg="white")
+                                txt.place(x=Cx+10,y=Cy-15,height=12)
+                            if elemento == "˅":
+                                txt = Label(juego,text="˅",font=("Arial",13),bg="#292929",fg="white")
+                                txt.place(x=Cx+10,y=Cy-15,height=12)
+
+                            txtlista.append(txt)
+                            k = 1
+                            break
+                    if k == 1:
+                        break
+
+    def desplegar_partida_cargar(numero,btns):
+        global partida
+        global numeroPartida
+        global cuadriculaBotones
+        cuadriculaBotones = btns
+        partida = totalJugadas[nivelJuego][numero]
+        numeroPartida = numero
+        print(partida)
+    
+
+        for simbolo in partida:
+            k = 0
+            f = simbolo[1]
+            c = simbolo[2]
+            elemento = simbolo[0]
+            if elemento.isdigit() == True:
+                for fila,fObj in enumerate(objetosBotones):
+                    for columna,cObj in enumerate(fObj):
+                        if f == fila and c == columna:
+                            obj = objetosBotones[fila][columna]
+                            obj.config(text=elemento)
+##                            if len(cuadriculaBotones[fila][columna]) > 0:
+##                                cuadriculaBotones[fila][columna][0] = elemento
+##                            else:
+##                                cuadriculaBotones[fila][columna].append(elemento)
+                            k = 1
+                            break
+                    if k == 1:
+                        break
+            else:
+                for fila,fcoordenadas in enumerate(coordenadas):
+                    for columna,cObj in enumerate(fcoordenadas):
+                        if f == fila and c == columna:
+                            Cx = coordenadas[fila][columna][0]
+                            Cy = coordenadas[fila][columna][1]
+                            if elemento == "<":
+                                txt = Label(juego,text="<",font=("Arial",13),bg="#292929",fg="white")
+                                txt.place(x=Cx+40,y=Cy+10,width=15)
+                            if elemento == ">":
+                                txt = Label(juego,text=">",font=("Arial",13),bg="#292929",fg="white")
+                                txt.place(x=Cx+40,y=Cy+10,width=15)
+                            if elemento == "˄":
+                                txt = Label(juego,text="˄",font=("Arial",13),bg="#292929",fg="white")
+                                txt.place(x=Cx+10,y=Cy-15,height=12)
+                            if elemento == "˅":
+                                txt = Label(juego,text="˅",font=("Arial",13),bg="#292929",fg="white")
+                                txt.place(x=Cx+10,y=Cy-15,height=12)
+
+                            txtlista.append(txt)
+                            k = 1
+                            break
+                    if k == 1:
+                        break
+
         
-        
 
-    def Guardar():
-        pass
-
-    def Cargar():
-        pass
-
-    def horaActualizar():
-        pass
 
     def cerrar():
         global variableIniciar
@@ -498,6 +722,11 @@ def jugar():
         variableIniciar = 0
         h,m,s = 0,0,0
         return
+
+    def act():
+        print(botonNumero)
+
+        juego.after(1000,act)
     
     raiz.withdraw()
     juego = Toplevel(raiz)
@@ -508,6 +737,9 @@ def jugar():
 
     #variables utiles
     movimientos = []
+    movimientos2 = []
+    txtlista = []
+    cuadriculaBotones = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]]]
     
     futoshikitxt = Label(juego,text="FUTOSHIKI",font=("cambria", 24),bg="firebrick",fg="white",relief=GROOVE).place(x=200,y=5,width=200)
 
@@ -581,8 +813,8 @@ def jugar():
     btnBorrar = Button(juego,text="BORRAR\nJUEGO",bg="orchid",command=borrar,state="disabled")
     btnTop10 = Button(juego,text="TOP\n10",bg="gold",command=Top10)
 
-    btnGuardar= Button(juego,text="GUARDAR JUEGO",command=iniciar)
-    btnCargar = Button(juego,text="CARGAR JUEGO",command=iniciar)
+    btnGuardar= Button(juego,text="GUARDAR JUEGO",command=lambda: Guardar(configuracion,cuadriculaBotones,movimientos2,numeroPartida,coordenadas,nombre,h,m,s,Ch,Cm,Cs),state="disabled")
+    btnCargar = Button(juego,text="CARGAR JUEGO",command=lambda: Cargar(txtlista,objetosBotones,btnIniciar,btnBorrarJugada,btnTerminar,btnBorrar,btnGuardar,entryNombre))
 
     btnIniciar.place(x=20,y=430,width=100)
     btnBorrarJugada.place(x=135,y=430,width=100)
@@ -713,49 +945,15 @@ def jugar():
         
 
     #juego en cuadricula
-    numeroPartida = random.randint(0,2)
-    partida = totalJugadas[nivelJuego][numeroPartida]
+    txtlista = []
+    desplegar_partida()
 
-    cuadriculaBotones = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]]]
-
-    for simbolo in partida:
-        k = 0
-        f = simbolo[1]
-        c = simbolo[2]
-        elemento = simbolo[0]
-        if elemento.isdigit() == True:
-            for fila,fObj in enumerate(objetosBotones):
-                for columna,cObj in enumerate(fObj):
-                    if f == fila and c == columna:
-                        obj = objetosBotones[fila][columna]
-                        obj.config(text=elemento)
-                        cuadriculaBotones[fila][columna].append(elemento)
-                        k = 1
-                        break
-                if k == 1:
-                    break
-        else:
-            for fila,fcoordenadas in enumerate(coordenadas):
-                for columna,cObj in enumerate(fcoordenadas):
-                    if f == fila and c == columna:
-                        Cx = coordenadas[fila][columna][0]
-                        Cy = coordenadas[fila][columna][1]
-                        if elemento == "<":
-                            txt = Label(juego,text="<",font=("Arial",13),bg="#292929",fg="white").place(x=Cx+40,y=Cy+10,width=15)
-                        if elemento == ">":
-                            txt = Label(juego,text=">",font=("Arial",13),bg="#292929",fg="white").place(x=Cx+40,y=Cy+10,width=15)
-                        if elemento == "˄":
-                            txt = Label(juego,text="˄",font=("Arial",13),bg="#292929",fg="white").place(x=Cx+10,y=Cy-15,height=12)
-                        if elemento == "˅":
-                            txt = Label(juego,text="˅",font=("Arial",13),bg="#292929",fg="white").place(x=Cx+10,y=Cy-15,height=12)
-
-                        k = 1
-                        break
-                if k == 1:
-                    break
+        
                 
     Xbtn = Button(juego,text="X",command=cerrar)
     Xbtn.place(x=570,y=0)
+    #act()
+    
                         
 
 
@@ -918,12 +1116,13 @@ def configurar():
 
 
 
+def ayuda():
+    pass
 
 
 
-
-
-
+def acercade():
+    pass
 
 
 
@@ -932,6 +1131,7 @@ def configurar():
 ## programa principal ##
 configuracion = [[1,0,0],[1,0,0],[1,0]]
 actual = []
+#txtlista = []
 h,m,s = 0,0,0
 Ch,Cm,Cs = 0,0,0
 botonNumero = 0
@@ -986,5 +1186,11 @@ ButtonJugar = Button(raiz,text="Jugar",command=jugar,font=("cambria", 15),fg="wh
 ButtonConfigurar = Button(raiz,text="Configurar",command=configurar,font=("cambria", 15),fg="white",bg="#292929")
 ButtonJugar.place(x=165,y=250,width=180)
 ButtonConfigurar.place(x=165,y=290,width=180)
+ButtonAyuda = Button(raiz,text="Ayuda",command=ayuda,font=("cambria", 15),fg="white",bg="#292929")
+ButtonSalir = Button(raiz,text="Salir",command=raiz.destroy,font=("cambria", 15),fg="white",bg="#292929")
+ButtonAyuda.place(x=165,y=330,width=90)
+ButtonSalir.place(x=255,y=330,width=90)
+ButtonAcercade = Button(raiz,text="Acerca de",command=acercade,font=("cambria", 8),fg="white",bg="#292929")
+ButtonAcercade.place(x=230,y=225)
 
 raiz.mainloop()
