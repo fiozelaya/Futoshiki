@@ -12,14 +12,18 @@ import random
 
 ## funciones ##
 def Guardar(configuracion,cuadriculaBotones,movimientos2,numeroPartida,coordenadas,nombre,h,m,s,Ch,Cm,Cs):
+##    try:
+##        archivo = open("futoshiki2021juegoactual.dat","rb")
+##        cuadriculaBotones2 = archivo[1]
+##        if cuadriculaBotones2 != cuadriculaBotones:
+##            cuadriculaBotones = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]]]
+            
     archivo = open("futoshiki2021juegoactual.dat","wb")
-    print(cuadriculaBotones)
     pickle.dump([configuracion,cuadriculaBotones,movimientos2,numeroPartida,coordenadas,nombre,[h,m,s,Ch,Cm,Cs]],archivo)
     archivo.close()
 
         
 def jugar():
-    global cuadriculaBotones
     def actualizar():
         global variableIniciar
         for fila in cuadriculaBotones:
@@ -83,7 +87,6 @@ def jugar():
 
 
 
-        print(cuadriculaBotones)
         desplegar_partida_cargar(numeroPartida,cuadriculaBotones)
 
         archivo.close()
@@ -610,9 +613,17 @@ def jugar():
     def desplegar_partida():
         global partida
         global numeroPartida
+        global cuadriculaBotones
+        global h
+        global m
+        global s
+        global Ch
+        global Cm
+        global Cs
+        h,m,s,Ch,Cm,Cs = 0,0,0,0,0,0
         numeroPartida = random.randint(0,2)
         partida = totalJugadas[nivelJuego][numeroPartida]
-    
+        cuadriculaBotones = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]]]
 
         for simbolo in partida:
             k = 0
@@ -657,6 +668,8 @@ def jugar():
                             break
                     if k == 1:
                         break
+
+        print(cuadriculaBotones)
 
     def desplegar_partida_cargar(numero,btns):
         global partida
@@ -723,8 +736,8 @@ def jugar():
         h,m,s = 0,0,0
         return
 
-    def act():
-        print(botonNumero)
+    def act(cuadriculaBotones):
+        print(cuadriculaBotones)
 
         juego.after(1000,act)
     
@@ -739,7 +752,7 @@ def jugar():
     movimientos = []
     movimientos2 = []
     txtlista = []
-    cuadriculaBotones = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]]]
+    
     
     futoshikitxt = Label(juego,text="FUTOSHIKI",font=("cambria", 24),bg="firebrick",fg="white",relief=GROOVE).place(x=200,y=5,width=200)
 
@@ -952,7 +965,7 @@ def jugar():
                 
     Xbtn = Button(juego,text="X",command=cerrar)
     Xbtn.place(x=570,y=0)
-    #act()
+    #act(cuadriculaBotones)
     
                         
 
