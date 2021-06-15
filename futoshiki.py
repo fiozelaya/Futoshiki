@@ -144,7 +144,6 @@ def jugar():
 
         auxboton = botonNumero
         for simbolo in partida:
-            print(simbolo,"\n")
             k = 0
             elemento = simbolo[0]
             ifObj = simbolo[1]
@@ -159,7 +158,7 @@ def jugar():
                     k = 1
                     return
             #else:
-            contador = 0
+            contador = 1
             flag = 0
             for n in range(contador):
                 if (ifObj == fila and icObj == columna) or (ifObj == fila+1 and icObj == columna) or (ifObj == fila and icObj == columna-1):
@@ -173,9 +172,7 @@ def jugar():
                         contador = 2
                         flag = 2
 
-                    print(flag)         
                     if elemento == "<":
-                        print(1)
                         try:
                             elemento2 = cuadriculaBotones[fila][columna+1][0]
                         except:
@@ -187,13 +184,12 @@ def jugar():
                             texto = ""
                         
                         if flag == 2:
-                            print(12)
                             try:
                                 botonNumero = cuadriculaBotones[fila][columna-1][0]
                                 elemento2 = auxboton
+                                
                             except:
                                 break
-                        print(elemento2)
                         if int(botonNumero) > int(elemento2):
                             obj.config(bg="red")
                             messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de menor")
@@ -204,7 +200,6 @@ def jugar():
 
                     
                     if elemento == ">":
-                        print(2)
                         try:
                             elemento2 = cuadriculaBotones[fila][columna+1][0]
                             
@@ -218,10 +213,10 @@ def jugar():
                             texto = ""
                             
                         if flag == 2:
-                            print(22)
                             try:
                                 botonNumero = cuadriculaBotones[fila][columna-1][0]
                                 elemento2 = auxboton
+                                
                             except:
                                 break
                             
@@ -480,9 +475,11 @@ def jugar():
             fila = movimiento[1]
             columna = movimiento[2]
             del movimientos[-1]
+            del movimientos2[-1]
             
             obj.config(text="")
             cuadriculaBotones[fila][columna] = []
+        
 
 
     def borrarCargar(movimientos2):
@@ -614,6 +611,8 @@ def jugar():
         global partida
         global numeroPartida
         global cuadriculaBotones
+        global movimientos
+        global movimientos2
         global h
         global m
         global s
@@ -624,7 +623,9 @@ def jugar():
         numeroPartida = random.randint(0,2)
         partida = totalJugadas[nivelJuego][numeroPartida]
         cuadriculaBotones = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]]]
-
+        movimientos = []
+        movimientos2 = []
+        
         for simbolo in partida:
             k = 0
             f = simbolo[1]
@@ -669,7 +670,6 @@ def jugar():
                     if k == 1:
                         break
 
-        print(cuadriculaBotones)
 
     def desplegar_partida_cargar(numero,btns):
         global partida
@@ -678,7 +678,6 @@ def jugar():
         cuadriculaBotones = btns
         partida = totalJugadas[nivelJuego][numero]
         numeroPartida = numero
-        print(partida)
     
 
         for simbolo in partida:
@@ -736,8 +735,8 @@ def jugar():
         h,m,s = 0,0,0
         return
 
-    def act(cuadriculaBotones):
-        print(cuadriculaBotones)
+    def act():
+        print(movimientos,movimientos2)
 
         juego.after(1000,act)
     
@@ -749,8 +748,6 @@ def jugar():
     juego.title("Futoshiki")
 
     #variables utiles
-    movimientos = []
-    movimientos2 = []
     txtlista = []
     
     
@@ -965,7 +962,7 @@ def jugar():
                 
     Xbtn = Button(juego,text="X",command=cerrar)
     Xbtn.place(x=570,y=0)
-    #act(cuadriculaBotones)
+    #act()
     
                         
 
