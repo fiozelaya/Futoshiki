@@ -8,6 +8,7 @@ import tkinter
 from tkinter import *
 from tkinter import messagebox
 import random
+import webbrowser as wb
 
 
 ## funciones ##
@@ -1152,12 +1153,19 @@ def configurar():
 
 
 def ayuda():
-    pass
+    wb.open_new(r"Manual_de_usuario_futoshiki.pdf")
 
 
 
 def acercade():
-    pass
+    acerca = Toplevel(raiz)
+    acerca.geometry("300x200")
+    acerca.config(relief="raised")
+    acerca.configure(bg="#292929")
+    acerca.resizable(False,False)
+    Label1 = Label(acerca,text="\n\nPrograma Futoshiki \n\n Fiorella Zelaya Coto \n\n Fecha de creación: 03/06/2021 \n\n Versión 1.0.0",bg="#292929",fg="white").pack()
+    btnX = Button(acerca,text="X",command=acerca.destroy).place(x=270,y=0,width=30)
+
 
 
 
