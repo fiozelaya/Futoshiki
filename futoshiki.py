@@ -50,8 +50,12 @@ def jugar():
         for txt in txtlista:
             txt.destroy()
         
+        try:
+            archivo = open("futoshiki2021juegoactual.dat","rb")
+        except:
+            messagebox.showerror("Error","No se ha guardado ninguna partida")
+            return
         
-        archivo = open("futoshiki2021juegoactual.dat","rb")
         archivoPartida=pickle.load(archivo)
         
         configuracion = archivoPartida[0]
@@ -97,7 +101,6 @@ def jugar():
     
     def presionar(obj,fila,columna):
         global botonNumero
-        print(fila,columna)
         if variableIniciar == 0:
             return
         if botonNumero == 0:
@@ -161,15 +164,10 @@ def jugar():
                     if ifObj == fila and icObj == columna and flag != 0:
                         contador = 0
                         flag = 0
-                        print(elemento)
                     elif ifObj == fila+1 and icObj == columna and flag != 1 and elemento != ">" and elemento != "<":
-                        print(2)
-                        print(ifObj,icObj)
                         contador = 1
                         flag = 1
                     elif ifObj == fila and icObj == columna-1 and flag != 2 and elemento != "˄" and elemento != "˅":
-                        print(1)
-                        print(ifObj,icObj)
                         contador = 2
                         flag = 2
                     else:
@@ -225,7 +223,6 @@ def jugar():
                             
                         if int(botonNumero) < int(elemento2):
                             obj.config(bg="red")
-                            print(simbolo,">")
                             messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
                             obj.config(bg="SystemButtonFace")
                             obj.config(text=texto)
@@ -254,7 +251,6 @@ def jugar():
                             
                         if int(botonNumero) < int(elemento2):
                             obj.config(bg="red")
-                            print(simbolo,"˄")
                             messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
                             obj.config(bg="SystemButtonFace")
                             obj.config(text=texto)
@@ -760,11 +756,6 @@ def jugar():
         variableIniciar = 0
         h,m,s = 0,0,0
         return
-
-    def act():
-        print(h,m,s)
-
-        juego.after(1000,act)
     
     raiz.withdraw()
     juego = Toplevel(raiz)
@@ -988,8 +979,7 @@ def jugar():
                 
     Xbtn = Button(juego,text="X",command=cerrar)
     Xbtn.place(x=570,y=0)
-    act()
-    
+
                         
 
 
