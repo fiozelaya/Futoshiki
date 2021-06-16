@@ -12,11 +12,6 @@ import random
 
 ## funciones ##
 def Guardar(configuracion,cuadriculaBotones,movimientos2,numeroPartida,coordenadas,nombre,h,m,s,Ch,Cm,Cs):
-##    try:
-##        archivo = open("futoshiki2021juegoactual.dat","rb")
-##        cuadriculaBotones2 = archivo[1]
-##        if cuadriculaBotones2 != cuadriculaBotones:
-##            cuadriculaBotones = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]]]
             
     archivo = open("futoshiki2021juegoactual.dat","wb")
     pickle.dump([configuracion,cuadriculaBotones,movimientos2,numeroPartida,coordenadas,nombre,[h,m,s,Ch,Cm,Cs]],archivo)
@@ -48,7 +43,6 @@ def jugar():
         global Cs
         global nombre
         global configuracion
-        #global cuadriculaBotones
         global movimientos2
         global partida
 
@@ -102,6 +96,7 @@ def jugar():
     
     def presionar(obj,fila,columna):
         global botonNumero
+        print(fila,columna)
         if variableIniciar == 0:
             return
         if botonNumero == 0:
@@ -165,12 +160,19 @@ def jugar():
                     if ifObj == fila and icObj == columna and flag != 0:
                         contador = 0
                         flag = 0
-                    if ifObj == fila+1 and icObj == columna and flag != 1 and elemento != ">" and elemento != "<":
+                        print(elemento)
+                    elif ifObj == fila+1 and icObj == columna and flag != 1 and elemento != ">" and elemento != "<":
+                        print(2)
+                        print(ifObj,icObj)
                         contador = 1
                         flag = 1
-                    if ifObj == fila and icObj == columna-1 and flag != 2 and elemento != "˄" and elemento != "˅":
+                    elif ifObj == fila and icObj == columna-1 and flag != 2 and elemento != "˄" and elemento != "˅":
+                        print(1)
+                        print(ifObj,icObj)
                         contador = 2
                         flag = 2
+                    else:
+                        break
 
                     if elemento == "<":
                         try:
@@ -222,6 +224,7 @@ def jugar():
                             
                         if int(botonNumero) < int(elemento2):
                             obj.config(bg="red")
+                            print(simbolo,">")
                             messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
                             obj.config(bg="SystemButtonFace")
                             obj.config(text=texto)
@@ -250,6 +253,7 @@ def jugar():
                             
                         if int(botonNumero) < int(elemento2):
                             obj.config(bg="red")
+                            print(simbolo,"˄")
                             messagebox.showinfo("!","Jugada no válida: No se cumple la restricción de mayor")
                             obj.config(bg="SystemButtonFace")
                             obj.config(text=texto)
@@ -520,10 +524,19 @@ def jugar():
                 hh = int(tiempo[0])
                 mm = int(tiempo[1])
                 ss = int(tiempo[2])
-                if hh > h or mm > m or ss > s:
+                
+                if hh > h:
                     Top10facil.insert(i,[nombre,tiempoJugado])
                     return
-            Top10facil.append([nombre,tiempoJugado])
+                elif mm > m:
+                    Top10facil.insert(i,[nombre,tiempoJugado])
+                    return
+                elif ss > s:
+                    Top10facil.insert(i,[nombre,tiempoJugado])
+                    return
+                else:
+                    Top10facil.append([nombre,tiempoJugado])
+                    return
             
         if configuracion[0][1] == 1:
             if Top10intermedio == []:
@@ -534,10 +547,18 @@ def jugar():
                 hh = int(tiempo[0])
                 mm = int(tiempo[1])
                 ss = int(tiempo[2])
-                if hh > h or mm > m or ss > s:
-                    Top10intermedio.insert(i,[nombre,tiempoJugado])
+                if hh > h:
+                    Top10facil.insert(i,[nombre,tiempoJugado])
                     return
-            Top10intermedio.append([nombre,tiempoJugado])
+                elif mm > m:
+                    Top10facil.insert(i,[nombre,tiempoJugado])
+                    return
+                elif ss > s:
+                    Top10facil.insert(i,[nombre,tiempoJugado])
+                    return
+                else:
+                    Top10intermedio.append([nombre,tiempoJugado])
+                    return
                 
         if configuracion[0][2] == 1:
             if Top10dificil == []:
@@ -548,10 +569,18 @@ def jugar():
                 hh = int(tiempo[0])
                 mm = int(tiempo[1])
                 ss = int(tiempo[2])
-                if hh > h or mm > m or ss > s:
-                    Top10dificil.insert(i,[nombre,tiempoJugado])
+                if hh > h:
+                    Top10facil.insert(i,[nombre,tiempoJugado])
                     return
-            Top10dificil.append([nombre,tiempoJugado])
+                elif mm > m:
+                    Top10facil.insert(i,[nombre,tiempoJugado])
+                    return
+                elif ss > s:
+                    Top10facil.insert(i,[nombre,tiempoJugado])
+                    return
+                else:
+                    Top10dificil.append([nombre,tiempoJugado])
+                    return
 
 
     def archivosTop10():
@@ -691,10 +720,6 @@ def jugar():
                         if f == fila and c == columna:
                             obj = objetosBotones[fila][columna]
                             obj.config(text=elemento)
-##                            if len(cuadriculaBotones[fila][columna]) > 0:
-##                                cuadriculaBotones[fila][columna][0] = elemento
-##                            else:
-##                                cuadriculaBotones[fila][columna].append(elemento)
                             k = 1
                             break
                     if k == 1:
@@ -736,7 +761,7 @@ def jugar():
         return
 
     def act():
-        print(movimientos,movimientos2)
+        print(h,m,s)
 
         juego.after(1000,act)
     
@@ -962,7 +987,7 @@ def jugar():
                 
     Xbtn = Button(juego,text="X",command=cerrar)
     Xbtn.place(x=570,y=0)
-    #act()
+    act()
     
                         
 
