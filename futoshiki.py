@@ -9,6 +9,7 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import webbrowser as wb
+from playsound import playsound 
 
 
 ## funciones ##
@@ -28,7 +29,9 @@ def jugar():
                     return
                 
         variableIniciar = 0
+        playsound("preview.mp3")
         messagebox.showinfo("¡Ganaste!","¡Felicidades! Juego terminado con éxito.")
+        
         h,m,s = 0,0,0
         Top10listas(Top10facil,Top10intermedio,Top10dificil)
         archivosTop10()
@@ -529,6 +532,9 @@ def jugar():
                     Top10facil.insert(i,[nombre,tiempoJugado])
                     return
                 elif ss > s:
+                    if ss == s and mm == m:
+                        Top10facil.insert(i,[nombre,tiempoJugado])
+                        return
                     Top10facil.insert(i,[nombre,tiempoJugado])
                     return
                 else:
@@ -597,6 +603,60 @@ def jugar():
         faciltxt = Label(top10,text="Nivel fácil",fg="white",bg="#292929").place(x=25,y=40)
         intermediotxt = Label(top10,text="Nivel intermedio",fg="white",bg="#292929").place(x=225,y=40)
         dificiltxt = Label(top10,text="Nivel difícil",fg="white",bg="#292929").place(x=425,y=40)
+
+        #ordenar
+
+        try:
+            archivo = open("futoshiki2021top10.dat","rb")
+            top10listas = pickle.load(archivo)
+            for n,nivel in enumerate(top10listas):
+                l,contador = len(nivel),len(nivel)*2
+                i = 0
+                while contador != 0:
+                    while l != 0:
+                        jugador = nivel[i]
+                        tiempo = jugador[1].split(":")
+                        hh = int(tiempo[0])
+                        mm = int(tiempo[1])
+                        ss = int(tiempo[2])
+                        try:
+                            jugador2 = nivel[i-1]
+                            tiempo = jugador[1].split(":")
+                            hh2 = int(tiempo[0])
+                            mm2 = int(tiempo[1])
+                            ss2 = int(tiempo[2])
+                        except:
+                            i += 1
+                            l -= 1
+                            continue
+
+                        if hh > hh2 or mm > mm2:
+                            aux = jugador[:]
+                            del top10listas[n][i]
+                            top10listas[n].insert(i-1,aux)
+                        elif ss == ss2 and hh == hh2 and mm == mm2:
+                            aux = jugador[:]
+                            del top10listas[n][i]
+                            top10listas[n].insert(i-1,aux)
+                        elif ss > ss2:
+                            aux = jugador[:]
+                            del top10listas[n][i]
+                            top10listas[n].insert(i-1,aux)
+                        else:
+                            pass
+                        i += 1
+                        l -= 1
+                    contador -= 1
+                        
+
+                archivo.close()
+                print(top10listas)
+                archivo = open("futoshiki2021top10.dat","wb")
+                pickle.dump(top10listas,archivo)
+
+        except:
+            pass
+        
         
         n=3
         Cx=20
@@ -617,15 +677,21 @@ def jugar():
             n -= 1
 
         try:
+            
             archivo = open("futoshiki2021top10.dat","rb")
             top10listas = pickle.load(archivo)
+            print(top10listas)
             Cx = 20
             for nivel in top10listas:
+                contador = 10
                 Cy = 100
                 for jugador in nivel:
+                    if contador == 0:
+                        break
                     txtnombre = Label(top10,text=jugador[0],fg="white",bg="#292929").place(x=Cx+15,y=Cy)
                     txttiempo = Label(top10,text=jugador[1],fg="white",bg="#292929").place(x=Cx+100,y=Cy)
                     Cy += 20
+                    contador -1
                 Cx += 200
 
         except:
