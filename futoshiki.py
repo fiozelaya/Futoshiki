@@ -1210,12 +1210,19 @@ def configurar():
         configArchivo = open("futoshiki2021configuración.dat","wb")
         pickle.dump(configuracion,configArchivo)
         configArchivo.close()
+
+        derecha,izquierda = IntVar(),IntVar()
+        facil,medio,dificil = IntVar(),IntVar(),IntVar()
+        si,no,timer= IntVar(),IntVar(),IntVar()
         configraiz.destroy()
         raiz.deiconify()
 
     #no se guarda ningún cambio hecho
     #se cierra la ventana
     def fin():
+        derecha,izquierda = IntVar(),IntVar()
+        facil,medio,dificil = IntVar(),IntVar(),IntVar()
+        si,no,timer= IntVar(),IntVar(),IntVar()
         configuracion = [[1,0,0],[1,0,0],[1,0]]
         configraiz.destroy()
         raiz.deiconify()
@@ -1230,12 +1237,17 @@ def configurar():
     configraiz.title("Configuración")
 
     #LABELS Y CHECKBUTTONS
-    facil,medio,dificil = IntVar(),IntVar(),IntVar()
     
+    
+    #la configuración por default está marcada en rojo, si no está marcada se quita lo rojo
+    #valores on 1 off 0
     txt1 = Label(configraiz,text="Nivel:",bg="#292929",fg="white").place(x=0,y=0)
-    checkbtn1 = Checkbutton(configraiz,text="Fácil",variable=facil,onvalue=1,offvalue=0,bg="#292929",selectcolor="red",command=lambda:nivel(1,checkbtn1,checkbtn2,checkbtn3))
+    if facil.get() == 1:
+        checkbtn1 = Checkbutton(configraiz,text="Fácil",variable=facil,onvalue=1,offvalue=0,bg="#292929",selectcolor="red",command=lambda:nivel(1,checkbtn1,checkbtn2,checkbtn3))
+    else:
+        checkbtn1 = Checkbutton(configraiz,text="Fácil",variable=facil,onvalue=1,offvalue=0,bg="#292929",command=lambda:nivel(1,checkbtn1,checkbtn2,checkbtn3))
     checkbtn1.place(x=50,y=0)
-    checkbtn1.select()
+    
     
     txt = Label(configraiz,text="Fácil",bg="#292929",fg="white").place(x=70,y=3)
     checkbtn2 = Checkbutton(configraiz,text="Intermedio",variable=medio,onvalue=1,offvalue=0,bg="#292929",command=lambda:nivel(2,checkbtn1,checkbtn2,checkbtn3))
@@ -1247,9 +1259,13 @@ def configurar():
     
     txt = Label(configraiz,text="Difícil",bg="#292929",fg="white").place(x=70,y=43)
 
-    si,no,timer= IntVar(),IntVar(),IntVar()
+    
     txt2 = Label(configraiz,text="Reloj:",bg="#292929",fg="white").place(x=0,y=80)
     checkbtn4 = Checkbutton(configraiz,text="Sí",variable=si,onvalue=1,offvalue=0,bg="#292929",selectcolor="red",command=lambda:reloj(1,checkbtn4,checkbtn5,checkbtn6))
+    if si.get() == 1:
+        checkbtn4 = Checkbutton(configraiz,text="Sí",variable=si,onvalue=1,offvalue=0,bg="#292929",selectcolor="red",command=lambda:reloj(1,checkbtn4,checkbtn5,checkbtn6))
+    else:
+        checkbtn4 = Checkbutton(configraiz,text="Sí",variable=si,onvalue=1,offvalue=0,bg="#292929",command=lambda:reloj(1,checkbtn4,checkbtn5,checkbtn6))
     checkbtn4.place(x=50,y=80)
     
     txt = Label(configraiz,text="Sí",bg="#292929",fg="white").place(x=70,y=83)
@@ -1262,10 +1278,14 @@ def configurar():
     
     txt = Label(configraiz,text="Timer",bg="#292929",fg="white").place(x=70,y=123)
 
-    derecha,izquierda = IntVar(),IntVar()
+    
     
     txt3 = Label(configraiz,text="Posición del reloj:",bg="#292929",fg="white").place(x=0,y=160)
     checkbtn7 = Checkbutton(configraiz,text="Derecha",variable=derecha,onvalue=1,offvalue=0,bg="#292929",selectcolor="red",command=lambda:lado(1,checkbtn7,checkbtn8))
+    if si.get() == 1:
+        checkbtn7 = Checkbutton(configraiz,text="Derecha",variable=derecha,onvalue=1,offvalue=0,bg="#292929",selectcolor="red",command=lambda:lado(1,checkbtn7,checkbtn8))
+    else:
+        checkbtn7 = Checkbutton(configraiz,text="Derecha",variable=derecha,onvalue=1,offvalue=0,bg="#292929",command=lambda:lado(1,checkbtn7,checkbtn8))
     checkbtn7.place(x=100,y=160)
     
     txt = Label(configraiz,text="Derecha",bg="#292929",fg="white").place(x=120,y=163)
@@ -1273,6 +1293,7 @@ def configurar():
     checkbtn8.place(x=100,y=180)
     
     txt = Label(configraiz,text="Izquierda",bg="#292929",fg="white").place(x=120,y=183)
+
 
     #RELOJ
     txthoras = Label(configraiz,text="Horas",relief=GROOVE).place(x=115,y=83)
@@ -1331,6 +1352,7 @@ variableIniciar = 0
 tiempoJugado = ""
 nombre = ""
 
+
 #se intenta leer un archivo, si existe
 try:
     archivo = open("futoshiki2021top10.dat","rb")
@@ -1371,6 +1393,10 @@ raiz.resizable(False,False)
 raiz.geometry("512x384")
 raiz.configure(bg="light gray")
 raiz.title("futoshiki")
+
+derecha,izquierda = IntVar(value=1),IntVar()
+facil,medio,dificil = IntVar(value=1),IntVar(),IntVar()
+si,no,timer= IntVar(value=1),IntVar(),IntVar()
 
 fondo = PhotoImage(file="futoshiki.png")
 Labelfondo = Label(raiz,image=fondo).pack()
