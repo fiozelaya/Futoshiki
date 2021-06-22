@@ -13,30 +13,48 @@ from playsound import playsound
 
 
 ## funciones ##
+
+#guardar la partida que se esté jugando
+#se crea/abre el archivo y se guardan las listas necesarias para cargar la partida
 def Guardar(configuracion,cuadriculaBotones,movimientos2,numeroPartida,coordenadas,nombre,h,m,s,Ch,Cm,Cs):
             
     archivo = open("futoshiki2021juegoactual.dat","wb")
     pickle.dump([configuracion,cuadriculaBotones,movimientos2,numeroPartida,coordenadas,nombre,[h,m,s,Ch,Cm,Cs]],archivo)
     archivo.close()
 
-        
+
+#funcion de jugar
+#ventana de la partida y funciones anidadas
 def jugar():
+
+    #cada vez que se gana una partida se llama esta función
+    #para ver cuando se ha ganado la partida
+    #se deshabilitan los botones porque ya ha finalizado la partida
     def actualizar():
         global variableIniciar
         for fila in cuadriculaBotones:
             for columna in fila:
                 if columna == []:
                     return
-                
+
+        #si se gana la partida, se reinician algunas variables
         variableIniciar = 0
         playsound("preview.mp3")
         messagebox.showinfo("¡Ganaste!","¡Felicidades! Juego terminado con éxito.")
         
         h,m,s = 0,0,0
+
+        #se llama a las funciones del Top 10 para guardar los datos de la partida
         Top10listas(Top10facil,Top10intermedio,Top10dificil)
         archivosTop10()
+        btnIniciar.config(state="disabled")
+        btnBorrarJugada.config(state="disabled")
+        btnTerminar.config(state="disabled")
+        btnBorrar.config(state="disabled")
 
 
+    #funcion para cargar la partida
+    #recibe las listas necesarias para sobreescribirlas, aunque creo que no es necesario
     def Cargar(txtlista,objetosBotones,btnIniciar,btnBorrarJugada,btnTerminar,btnBorrar,btnGuardar,entryNombre):
         
         global h
@@ -50,15 +68,18 @@ def jugar():
         global movimientos2
         global partida
 
+        #destruye todos los Label que se hayan puesto en la partida en nivel intermedio o dificil
         for txt in txtlista:
             txt.destroy()
-        
+
+        #si no se ha guardado ninguna partida:
         try:
             archivo = open("futoshiki2021juegoactual.dat","rb")
         except:
             messagebox.showerror("Error","No se ha guardado ninguna partida")
             return
-        
+
+        #se sobreescriben las variables con las de la partida guardada        
         archivoPartida=pickle.load(archivo)
         
         configuracion = archivoPartida[0]
@@ -72,6 +93,8 @@ def jugar():
         h,m,s = tiempo[0],tiempo[1],tiempo[2]
         Ch,Cm,Cs = tiempo[3],tiempo[4],tiempo[5]
 
+
+        #se borran los datos de la cuadrícula de la partida actual
         fila = 0
         while fila != 5: #fila
             contador2 = 5
@@ -88,10 +111,11 @@ def jugar():
             fila += 1
 
 
-
+        #se despliega la partida guardada
         desplegar_partida_cargar(numeroPartida,cuadriculaBotones)
-
         archivo.close()
+
+        #se deshabilitan ciertos botones y se cambia su función
         btnIniciar.config(state="normal")
         btnBorrarJugada.config(state="disabled",command=lambda: borrarJugadaCargar(movimientos2))
         btnTerminar.config(state="disabled")
@@ -101,9 +125,11 @@ def jugar():
 
 
 
-    
+    #funcion cada vez que se presiona la cuadricula
+    #recibe el objeto del botón que se está presionando y la fila y la columna del boton
     def presionar(obj,fila,columna):
         global botonNumero
+        #si no se ha iniciado el juego o escogido un botón, manda el aviso y retorna:
         if variableIniciar == 0:
             return
         if botonNumero == 0:
@@ -113,7 +139,8 @@ def jugar():
 
         #restricciones
         #filas y columnas
-
+        #busca si el número existe en la misma fila/columna y si sí, manda aviso y retorna
+        #busca si la casilla contiene un digito fijo, y si sí, avisa
         for i in range(5):
             try:
                 filas = int(cuadriculaBotones[fila][i][0])
@@ -160,6 +187,8 @@ def jugar():
                     k = 1
                     return
             #else:
+            #restricciones de mayor o menor que
+            #busca si el botón presionado esta cerca o tiene una restricción y la valida, si no se cumple, avisa y retorna
             contador = 1
             flag = 0
             for n in range(contador):
@@ -286,17 +315,22 @@ def jugar():
                             botonNumero = auxboton
                             return
 
+        #si todo está bien, se agrega a las listas de movimientos y cuadriculaBotones
         botonNumero = auxboton
         if len(cuadriculaBotones[fila][columna]) > 0:
             cuadriculaBotones[fila][columna][0] = botonNumero
         else:
-            cuadriculaBotones[fila][columna].append(botonNumero) #####################################
+            cuadriculaBotones[fila][columna].append(botonNumero)
 
         movimientos.append([obj,fila,columna])
         movimientos2.append([fila,columna])
-        
-        actualizar()
-        
+
+        #se llama a la función para ver si ya se llenaron todas las casillas
+        actualizar() 
+
+
+    #funcion para cada vez que se escoja un número
+    #se deseleccionan los demás botones, y se selecciona el verde el escogido
     def presionar_numero(num,obj):
         global botonNumero
         if variableIniciar == 0:
@@ -307,6 +341,12 @@ def jugar():
         botonNumero = num
         obj.config(relief="sunken",bg="#A1E240")
 
+
+    #funcion para el botón Iniciar juego
+    #activa la variableIniciar
+    #verifica que se haya puesto un nombre
+    #habilita y deshabilita ciertos botones
+    #depende de la configuración, activa el cronómetro, timer o ninguno
     def iniciar():
         global variableIniciar
         global nombre
@@ -334,6 +374,8 @@ def jugar():
             s = int(configuracion[3][2])
             timer()
 
+    #funcion para el timer
+    #cuenta en cuenta regresiva, y también cuenta un cronómetro para saber el tiempo jugado
     def timer():
         global h
         global m
@@ -347,7 +389,7 @@ def jugar():
             txtsegundos.config(text=str(s))
             return
 
-        cronómetro_timer()
+        cronómetro_timer() #cronómetro del timer
         
         s -= 1
         if s < 0 and m != 0:
@@ -375,6 +417,8 @@ def jugar():
         
         juego.after(1000,timer)
 
+    #cronometro para el timer
+    #cuenta el tiempo total jugado
     def cronómetro_timer():
         global tiempoJugado
         global Ch
@@ -390,7 +434,9 @@ def jugar():
                 Ch += 1
 
         tiempoJugado = str(Ch)+":"+str(Cm)+":"+str(Cs)
-        
+
+    #funcion para el cronómetro normal
+    #cuenta el tiempo transcurrido de la partida hasta que se gane
     def cronómetro():
         global tiempoJugado
         global h
@@ -420,6 +466,8 @@ def jugar():
         juego.after(1000,cronómetro)
         
 
+    #funcion para borrar un movimiento
+    #busca en la lista de movimientos el último movimiento, y lo borrar del objeto
     def borrarJugada():
         try:
             movimiento = movimientos[-1]
@@ -436,6 +484,8 @@ def jugar():
         cuadriculaBotones[fila][columna] = []
 
 
+    #funcion para borrar un movimiento al cargar una partida
+    #con la fila y la columna, busca en la lista de botones el objeto y lo vacía, al igual que en la lista cuadriculaBotones
     def borrarJugadaCargar(movimientos2):
         try:
             movimiento = movimientos2[-1]
@@ -454,6 +504,8 @@ def jugar():
                     del movimientos2[-1]
         
 
+    #función para terminar el juego
+    #pregunta si se desea terminar el juego, si sí, se destruye la ventana
     def terminar():
         respuesta = messagebox.askyesno("!","¿Desea terminar el juego? Se perderá la partida actual.")
         if respuesta == False:
@@ -463,6 +515,8 @@ def jugar():
         jugar()
         
 
+    #funcion para reiniciar la partida
+    #busca todos los movimientos en la lista y los borra
     def borrar():
         respuesta = messagebox.askyesno("!","¿Desea borrar el juego? Se borrarán todos los movimientos.")
         if respuesta == False:
@@ -486,6 +540,8 @@ def jugar():
         
 
 
+    #funcion para reiniciar la aprtida cargarda
+    #busca los movimientos en la lista 2 y los elimina con la fila y la columna
     def borrarCargar(movimientos2):
         respuesta = messagebox.askyesno("!","¿Desea borrar el juego? Se borrarán todos los movimientos.")
         if respuesta == False:
@@ -513,8 +569,10 @@ def jugar():
             cuadriculaBotones[fila][columna] = []
             
         
-
-    def Top10listas(Top10facil,Top10intermedio,Top10dificil):  
+    #funcion para guardar los datos de la partida actual ordenadamente
+    #recibe todas las listas y dependiendo de la configuración, se guarda la partida actual en esa
+    #se comparan las horas, minutos y segundos, y el que tenga menos se coloca en frente del que tenga más
+    def Top10listas(Top10facil,Top10intermedio,Top10dificil):
         if configuracion[0][0] == 1:
             if Top10facil == []:
                 Top10facil.append([nombre,tiempoJugado])
@@ -524,6 +582,16 @@ def jugar():
                 hh = int(tiempo[0])
                 mm = int(tiempo[1])
                 ss = int(tiempo[2])
+
+                try:
+                    tiempo2 = Top10facil[i+1][1].split(":")
+                    hh2 = int(tiempo2[0])
+                    mm2 = int(tiempo2[1])
+                    ss2 = int(tiempo2[2])
+                    if hh2 < h or mm2 < m or ss2 < s:
+                        continue
+                except:
+                    pass
                 
                 if hh > h:
                     Top10facil.insert(i,[nombre,tiempoJugado])
@@ -538,7 +606,7 @@ def jugar():
                     Top10facil.insert(i,[nombre,tiempoJugado])
                     return
                 else:
-                    Top10facil.append([nombre,tiempoJugado])
+                    Top10facil.insert(i+1,[nombre,tiempoJugado])
                     return
             
         if configuracion[0][1] == 1:
@@ -550,6 +618,17 @@ def jugar():
                 hh = int(tiempo[0])
                 mm = int(tiempo[1])
                 ss = int(tiempo[2])
+
+                try:
+                    tiempo2 = Top10intermedio[i+1][1].split(":")
+                    hh2 = int(tiempo2[0])
+                    mm2 = int(tiempo2[1])
+                    ss2 = int(tiempo2[2])
+                    if hh2 < h or mm2 < m or ss2 < s:
+                        continue
+                except:
+                    pass
+                
                 if hh > h:
                     Top10facil.insert(i,[nombre,tiempoJugado])
                     return
@@ -557,10 +636,13 @@ def jugar():
                     Top10facil.insert(i,[nombre,tiempoJugado])
                     return
                 elif ss > s:
+                    if ss == s and mm == m:
+                        Top10facil.insert(i,[nombre,tiempoJugado])
+                        return
                     Top10facil.insert(i,[nombre,tiempoJugado])
                     return
                 else:
-                    Top10intermedio.append([nombre,tiempoJugado])
+                    Top10facil.insert(i+1,[nombre,tiempoJugado])
                     return
                 
         if configuracion[0][2] == 1:
@@ -572,6 +654,17 @@ def jugar():
                 hh = int(tiempo[0])
                 mm = int(tiempo[1])
                 ss = int(tiempo[2])
+
+                try:
+                    tiempo2 = Top10dificil[i+1][1].split(":")
+                    hh2 = int(tiempo2[0])
+                    mm2 = int(tiempo2[1])
+                    ss2 = int(tiempo2[2])
+                    if hh2 < h or mm2 < m or ss2 < s:
+                        continue
+                except:
+                    pass
+                
                 if hh > h:
                     Top10facil.insert(i,[nombre,tiempoJugado])
                     return
@@ -579,19 +672,26 @@ def jugar():
                     Top10facil.insert(i,[nombre,tiempoJugado])
                     return
                 elif ss > s:
+                    if ss == s and mm == m:
+                        Top10facil.insert(i,[nombre,tiempoJugado])
+                        return
                     Top10facil.insert(i,[nombre,tiempoJugado])
                     return
                 else:
-                    Top10dificil.append([nombre,tiempoJugado])
+                    Top10facil.insert(i+1,[nombre,tiempoJugado])
                     return
 
 
+    #funcion para guardar en archivos las listas del Top 10
     def archivosTop10():
         archivo = open("futoshiki2021top10.dat","wb")
         pickle.dump([Top10facil,Top10intermedio,Top10dificil],archivo)
         archivo.close()
 
 
+    #funcion para desplegar el Top10
+    #con un ciclo se pone en la pantalla las Label según ciertas coordenadas
+    #luego, se abre el archivo del top 10 y se van colocando los jugadores y sus tiempos con las antiguas coordenadas
     def Top10():
         top10 = Toplevel(juego)
         top10.resizable(False,False)
@@ -603,59 +703,6 @@ def jugar():
         faciltxt = Label(top10,text="Nivel fácil",fg="white",bg="#292929").place(x=25,y=40)
         intermediotxt = Label(top10,text="Nivel intermedio",fg="white",bg="#292929").place(x=225,y=40)
         dificiltxt = Label(top10,text="Nivel difícil",fg="white",bg="#292929").place(x=425,y=40)
-
-        #ordenar
-
-        try:
-            archivo = open("futoshiki2021top10.dat","rb")
-            top10listas = pickle.load(archivo)
-            for n,nivel in enumerate(top10listas):
-                l,contador = len(nivel),len(nivel)*2
-                i = 0
-                while contador != 0:
-                    while l != 0:
-                        jugador = nivel[i]
-                        tiempo = jugador[1].split(":")
-                        hh = int(tiempo[0])
-                        mm = int(tiempo[1])
-                        ss = int(tiempo[2])
-                        try:
-                            jugador2 = nivel[i-1]
-                            tiempo = jugador[1].split(":")
-                            hh2 = int(tiempo[0])
-                            mm2 = int(tiempo[1])
-                            ss2 = int(tiempo[2])
-                        except:
-                            i += 1
-                            l -= 1
-                            continue
-
-                        if hh > hh2 or mm > mm2:
-                            aux = jugador[:]
-                            del top10listas[n][i]
-                            top10listas[n].insert(i-1,aux)
-                        elif ss == ss2 and hh == hh2 and mm == mm2:
-                            aux = jugador[:]
-                            del top10listas[n][i]
-                            top10listas[n].insert(i-1,aux)
-                        elif ss > ss2:
-                            aux = jugador[:]
-                            del top10listas[n][i]
-                            top10listas[n].insert(i-1,aux)
-                        else:
-                            pass
-                        i += 1
-                        l -= 1
-                    contador -= 1
-                        
-
-                archivo.close()
-                print(top10listas)
-                archivo = open("futoshiki2021top10.dat","wb")
-                pickle.dump(top10listas,archivo)
-
-        except:
-            pass
         
         
         n=3
@@ -680,7 +727,6 @@ def jugar():
             
             archivo = open("futoshiki2021top10.dat","rb")
             top10listas = pickle.load(archivo)
-            print(top10listas)
             Cx = 20
             for nivel in top10listas:
                 contador = 10
@@ -698,7 +744,10 @@ def jugar():
             pass
 
 
-
+    #funcion para desplegar partida cada vez que se abre la ventana de Jugar
+    #crea la lista de cuadriculaBotones, movimientos
+    #busca en la partida generada al azar si hay simbolos de mayor o menor que, y los coloca
+    #busca los digitos fijos y los coloca en los objetos
     def desplegar_partida():
         global partida
         global numeroPartida
@@ -763,6 +812,9 @@ def jugar():
                         break
 
 
+    #funcion para desplegar una partida que se quiere cargar
+    #recibe el numero de partida y la lista de botones de esa partida a cargar
+    #realiza el mismo procedimiento que la funcipon anterior
     def desplegar_partida_cargar(numero,btns):
         global partida
         global numeroPartida
@@ -814,7 +866,7 @@ def jugar():
 
         
 
-
+    #funcion para cerrar la ventana 
     def cerrar():
         global variableIniciar
         juego.destroy()
@@ -822,7 +874,9 @@ def jugar():
         variableIniciar = 0
         h,m,s = 0,0,0
         return
-    
+
+
+    #VENTANA
     raiz.withdraw()
     juego = Toplevel(raiz)
     juego.resizable(False,False)
@@ -833,9 +887,10 @@ def jugar():
     #variables utiles
     txtlista = []
     
-    
+    #LABELS
     futoshikitxt = Label(juego,text="FUTOSHIKI",font=("cambria", 24),bg="firebrick",fg="white",relief=GROOVE).place(x=200,y=5,width=200)
 
+            #busca en configuracion el nivel para desplegarlo en Label
     for i,level in enumerate(configuracion[0]):
         if i == 0 and level == 1:
             nivel = "FÁCIL"
@@ -848,7 +903,7 @@ def jugar():
             nivelJuego = 2
     niveltxt = Label(juego,text="NIVEL "+nivel,bg="#292929",fg="white").place(x=260,y=55)
     txt = Label(juego,text="Nombre del jugador:",bg="#292929",fg="white").place(x=10,y=90)
-    entryNombre = Entry(juego)
+    entryNombre = Entry(juego) #entry del nombre
     entryNombre.place(x=140,y=90,width=300)
 
     #cuadricula
@@ -882,6 +937,7 @@ def jugar():
     btn43 = Button(juego,relief=RIDGE,command=lambda: presionar(btn43,4,3))
     btn44 = Button(juego,relief=RIDGE,command=lambda: presionar(btn44,4,4))
 
+    #MATRIZ DE LOS OBJETOS DE LOS BOTONES EN ORDEN DE FILA Y COLUMNA 
     objetosBotones = [[(btn00),(btn01),(btn02),(btn03),(btn04)],\
                       [(btn10),(btn11),(btn12),(btn13),(btn14)],\
                       [(btn20),(btn21),(btn22),(btn23),(btn24)],\
@@ -889,6 +945,7 @@ def jugar():
                       [(btn40),(btn41),(btn42),(btn43),(btn44)]]
 
             #botones numeros
+            #PANEL NUMERICO
 
     btnnum1 = Button(juego,text="1",bg="violet red",command=lambda: presionar_numero(1,btnnum1))
     btnnum2 = Button(juego,text="2",bg="orange",command=lambda: presionar_numero(2,btnnum2))
@@ -899,6 +956,7 @@ def jugar():
     colores = ["violet red","orange","dark turquoise","orchid","gold"]
 
     #botones generales
+    #BOTONES
 
     btnIniciar = Button(juego,text="INICIAR\nJUEGO",bg="violet red",command=iniciar)
     btnBorrarJugada = Button(juego,text="BORRAR\nJUGADA",bg="orange",command=borrarJugada,state="disabled")
@@ -909,6 +967,9 @@ def jugar():
     btnGuardar= Button(juego,text="GUARDAR JUEGO",command=lambda: Guardar(configuracion,cuadriculaBotones,movimientos2,numeroPartida,coordenadas,nombre,h,m,s,Ch,Cm,Cs),state="disabled")
     btnCargar = Button(juego,text="CARGAR JUEGO",command=lambda: Cargar(txtlista,objetosBotones,btnIniciar,btnBorrarJugada,btnTerminar,btnBorrar,btnGuardar,entryNombre))
 
+
+    #PLACE THEM
+    
     btnIniciar.place(x=20,y=430,width=100)
     btnBorrarJugada.place(x=135,y=430,width=100)
     btnTerminar.place(x=249,y=430,width=100)
@@ -918,6 +979,7 @@ def jugar():
     btnGuardar.place(x=269,y=520,width=100)
     btnCargar.place(x=395,y=520,width=100)
 
+    #SE COLOCA LA CUADRICULA SEGUN LA CONFIGURACION (IZQ O DER)
     if configuracion[2][1] == 1:
 
         btn00.place(x=195,y=125,width=40,height=40)
@@ -956,6 +1018,7 @@ def jugar():
         btnnum4.place(x=140,y=300,width=30)
         btnnum5.place(x=140,y=355,width=30)
 
+        #MATRIZ DE COORDENADAS DE LOS BOTONES DE LA CUADRICULA
         coordenadas = [[(195,125),(250,125),(305,125),(360,125),(415,125)],\
                        [(195,180),(250,180),(305,180),(360,180),(415,180)],\
                        [(195,235),(250,235),(305,235),(360,235),(415,235)],\
@@ -1004,12 +1067,14 @@ def jugar():
         btnGuardar.place(x=190,y=520,width=100)
         btnCargar.place(x=305,y=520,width=100)
 
+        #MATRIZ DE COORDENADAS DE LOS BOTONES DE LA CUADRICULA
         coordenadas = [[(140,125),(195,125),(250,125),(305,125),(360,125)],\
                        [(140,180),(195,180),(250,180),(305,180),(360,180)],\
                        [(140,235),(195,235),(250,235),(305,235),(360,235)],\
                         [(140,290),(195,290),(250,290),(305,290),(360,290)],\
                         [(140,345),(195,345),(250,345),(305,345),(360,345)]]
-        
+
+        #SE COLOCA EL RELOJ DEPENDIENDO DE LA CONFIGURACION
     if configuracion[1][1] == 1:
         pass
     else:
@@ -1037,12 +1102,13 @@ def jugar():
             txtsegundos.place(x=106,y=521,width=58,height=40)
         
 
+    #DESPLIEGUE DE PARTIDA
     #juego en cuadricula
     txtlista = []
     desplegar_partida()
 
         
-                
+    #BOTON DE CERRAR VENTANA
     Xbtn = Button(juego,text="X",command=cerrar)
     Xbtn.place(x=570,y=0)
 
@@ -1054,8 +1120,13 @@ def jugar():
 
 
 
-
+#función de configuración de la partida
+#contiene la ventana y las funciones anidadas para realizar la configuración
 def configurar():
+
+    #las funciones nivel, reloj y lado son funciones para actualizar la configuración
+    # y evitar que se puedan seleccionar más de un checkbutton
+    #1 significa seleccionado y 0 no seleccionado (on,off)
     def nivel(num,checkbtn1,checkbtn2,checkbtn3):
         global configuracion
         if num == 1:
@@ -1110,6 +1181,11 @@ def configurar():
             checkbtn7.deselect()
             configuracion[2] = [0,1]
 
+
+    #funcion para guardar la configuración hecha por el usuario
+    #se valida que si se escogió timer, se haya introducido un tiempo límite
+    #se crear/sobreescribe el archivo de la configuración
+    #se cierra la ventana
     def guardar():
         if configuracion[1][2] == 1:
             horas = int(entryhoras.get())
@@ -1136,14 +1212,16 @@ def configurar():
         configArchivo.close()
         configraiz.destroy()
         raiz.deiconify()
-        
+
+    #no se guarda ningún cambio hecho
+    #se cierra la ventana
     def fin():
         configuracion = [[1,0,0],[1,0,0],[1,0]]
         configraiz.destroy()
         raiz.deiconify()
             
 
-        
+    #VENTANA
     raiz.withdraw()
     configraiz = Toplevel(raiz)
     configraiz.resizable(False,False)
@@ -1151,41 +1229,52 @@ def configurar():
     configraiz.configure(bg="#292929")
     configraiz.title("Configuración")
 
+    #LABELS Y CHECKBUTTONS
     facil,medio,dificil = IntVar(),IntVar(),IntVar()
+    
     txt1 = Label(configraiz,text="Nivel:",bg="#292929",fg="white").place(x=0,y=0)
     checkbtn1 = Checkbutton(configraiz,text="Fácil",variable=facil,onvalue=1,offvalue=0,bg="#292929",selectcolor="red",command=lambda:nivel(1,checkbtn1,checkbtn2,checkbtn3))
     checkbtn1.place(x=50,y=0)
     checkbtn1.select()
+    
     txt = Label(configraiz,text="Fácil",bg="#292929",fg="white").place(x=70,y=3)
     checkbtn2 = Checkbutton(configraiz,text="Intermedio",variable=medio,onvalue=1,offvalue=0,bg="#292929",command=lambda:nivel(2,checkbtn1,checkbtn2,checkbtn3))
     checkbtn2.place(x=50,y=20)
+    
     txt = Label(configraiz,text="Intermedio",bg="#292929",fg="white").place(x=70,y=23)
     checkbtn3 = Checkbutton(configraiz,text="Difícil",variable=dificil,onvalue=1,offvalue=0,bg="#292929",command=lambda:nivel(3,checkbtn1,checkbtn2,checkbtn3))
     checkbtn3.place(x=50,y=40)
+    
     txt = Label(configraiz,text="Difícil",bg="#292929",fg="white").place(x=70,y=43)
 
     si,no,timer= IntVar(),IntVar(),IntVar()
     txt2 = Label(configraiz,text="Reloj:",bg="#292929",fg="white").place(x=0,y=80)
     checkbtn4 = Checkbutton(configraiz,text="Sí",variable=si,onvalue=1,offvalue=0,bg="#292929",selectcolor="red",command=lambda:reloj(1,checkbtn4,checkbtn5,checkbtn6))
     checkbtn4.place(x=50,y=80)
+    
     txt = Label(configraiz,text="Sí",bg="#292929",fg="white").place(x=70,y=83)
     checkbtn5 = Checkbutton(configraiz,text="No",variable=no,onvalue=1,offvalue=0,bg="#292929",command=lambda:reloj(2,checkbtn4,checkbtn5,checkbtn6))
     checkbtn5.place(x=50,y=100)
+    
     txt = Label(configraiz,text="No",bg="#292929",fg="white").place(x=70,y=103)
     checkbtn6 = Checkbutton(configraiz,text="Timer",variable=timer,onvalue=1,offvalue=0,bg="#292929",command=lambda:reloj(3,checkbtn4,checkbtn5,checkbtn6))
     checkbtn6.place(x=50,y=120)
+    
     txt = Label(configraiz,text="Timer",bg="#292929",fg="white").place(x=70,y=123)
 
     derecha,izquierda = IntVar(),IntVar()
+    
     txt3 = Label(configraiz,text="Posición del reloj:",bg="#292929",fg="white").place(x=0,y=160)
     checkbtn7 = Checkbutton(configraiz,text="Derecha",variable=derecha,onvalue=1,offvalue=0,bg="#292929",selectcolor="red",command=lambda:lado(1,checkbtn7,checkbtn8))
     checkbtn7.place(x=100,y=160)
+    
     txt = Label(configraiz,text="Derecha",bg="#292929",fg="white").place(x=120,y=163)
     checkbtn8 = Checkbutton(configraiz,text="Izquierda",variable=izquierda,onvalue=1,offvalue=0,bg="#292929",command=lambda:lado(2,checkbtn7,checkbtn8))
     checkbtn8.place(x=100,y=180)
+    
     txt = Label(configraiz,text="Izquierda",bg="#292929",fg="white").place(x=120,y=183)
 
-    #timer
+    #RELOJ
     txthoras = Label(configraiz,text="Horas",relief=GROOVE).place(x=115,y=83)
     txtmunutos = Label(configraiz,text="Minutos",relief=GROOVE).place(x=151,y=83)
     txtsegundos = Label(configraiz,text="Segundos",relief=GROOVE).place(x=201,y=83)
@@ -1193,13 +1282,15 @@ def configurar():
     horas,minutos,segundos = IntVar(value=0),IntVar(value=0),IntVar(value=0)
     entryhoras = Entry(configraiz,textvariable=horas,state='disabled',relief=GROOVE,bg="#F0F0F0")
     entryhoras.place(x=115,y=104,width=38,height=40)
+    
     entryminutos = Entry(configraiz,textvariable=minutos,state='disabled',relief=GROOVE,bg="#F0F0F0")
     entryminutos.place(x=151,y=104,width=56,height=40)
+    
     entrysegundos = Entry(configraiz,textvariable=segundos,state='disabled',relief=GROOVE,bg="#F0F0F0")
     entrysegundos.place(x=201,y=104,width=58,height=40)
     
 
-
+    #BOTONES GUARDAR O CANCELAR
     okbtn = Button(configraiz,text="Ok",command=guardar)
     okbtn.place(x=30,y=220,width=30)
     cancelbtn = Button(configraiz,text="Cancelar",command=fin)
@@ -1207,12 +1298,12 @@ def configurar():
 
 
 
-
+#funcion para desplegar el menu de usuario
 def ayuda():
     wb.open_new(r"Manual_de_usuario_futoshiki.pdf")
 
 
-
+#funcion acerca del programa
 def acercade():
     acerca = Toplevel(raiz)
     acerca.geometry("300x200")
@@ -1228,6 +1319,8 @@ def acercade():
 
 
 ## programa principal ##
+
+    #variables
 configuracion = [[1,0,0],[1,0,0],[1,0]]
 actual = []
 #txtlista = []
@@ -1238,6 +1331,7 @@ variableIniciar = 0
 tiempoJugado = ""
 nombre = ""
 
+#se intenta leer un archivo, si existe
 try:
     archivo = open("futoshiki2021top10.dat","rb")
     top10listas = pickle.load(archivo)
@@ -1271,7 +1365,7 @@ jugadas.close()
 
 
 
-                         
+#VENTANA                 
 raiz = Tk()
 raiz.resizable(False,False)
 raiz.geometry("512x384")
@@ -1281,6 +1375,7 @@ raiz.title("futoshiki")
 fondo = PhotoImage(file="futoshiki.png")
 Labelfondo = Label(raiz,image=fondo).pack()
 
+#BOTONES 
 ButtonJugar = Button(raiz,text="Jugar",command=jugar,font=("cambria", 15),fg="white",bg="#292929")
 ButtonConfigurar = Button(raiz,text="Configurar",command=configurar,font=("cambria", 15),fg="white",bg="#292929")
 ButtonJugar.place(x=165,y=250,width=180)
