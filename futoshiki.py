@@ -45,8 +45,9 @@ def jugar():
         h,m,s = 0,0,0
 
         #se llama a las funciones del Top 10 para guardar los datos de la partida
-        Top10listas(Top10facil,Top10intermedio,Top10dificil)
-        archivosTop10()
+        if configuracion[1][1] == 0:
+            Top10listas(Top10facil,Top10intermedio,Top10dificil)
+            archivosTop10()
         btnIniciar.config(state="disabled")
         btnBorrarJugada.config(state="disabled")
         btnTerminar.config(state="disabled")
@@ -599,10 +600,7 @@ def jugar():
                 elif mm > m:
                     Top10facil.insert(i,[nombre,tiempoJugado])
                     return
-                elif ss > s:
-                    if ss == s and mm == m:
-                        Top10facil.insert(i,[nombre,tiempoJugado])
-                        return
+                elif ss > s and mm >= m and hh >= h:
                     Top10facil.insert(i,[nombre,tiempoJugado])
                     return
                 else:
@@ -737,7 +735,8 @@ def jugar():
                     txtnombre = Label(top10,text=jugador[0],fg="white",bg="#292929").place(x=Cx+15,y=Cy)
                     txttiempo = Label(top10,text=jugador[1],fg="white",bg="#292929").place(x=Cx+100,y=Cy)
                     Cy += 20
-                    contador -1
+                    contador -= 1
+                    
                 Cx += 200
 
         except:
@@ -863,6 +862,7 @@ def jugar():
                             break
                     if k == 1:
                         break
+
 
         
 
@@ -1075,15 +1075,22 @@ def jugar():
                         [(140,345),(195,345),(250,345),(305,345),(360,345)]]
 
         #SE COLOCA EL RELOJ DEPENDIENDO DE LA CONFIGURACION
+    txthoras0 = Label(juego,text="Horas",relief=GROOVE)
+    txtminutos0 = Label(juego,text="Minutos",relief=GROOVE)
+    txtsegundos0 = Label(juego,text="Segundos",relief=GROOVE)
+    txthoras = Label(juego,relief=GROOVE,bg="#F0F0F0")
+    txtminutos = Label(juego,relief=GROOVE,bg="#F0F0F0")
+    txtsegundos = Label(juego,relief=GROOVE,bg="#F0F0F0")
+    
     if configuracion[1][1] == 1:
         pass
     else:
-        txthoras0 = Label(juego,text="Horas",relief=GROOVE).place(x=20,y=500)
-        txtminutos0 = Label(juego,text="Minutos",relief=GROOVE).place(x=56,y=500)
-        txtsegundos0 = Label(juego,text="Segundos",relief=GROOVE).place(x=106,y=500)
-        txthoras = Label(juego,relief=GROOVE,bg="#F0F0F0").place(x=20,y=521,width=38,height=40)
-        txtminutos = Label(juego,relief=GROOVE,bg="#F0F0F0").place(x=56,y=521,width=56,height=40)
-        txtsegundos = Label(juego,relief=GROOVE,bg="#F0F0F0").place(x=106,y=521,width=58,height=40)
+        txthoras0.place(x=20,y=500)
+        txtminutos0.place(x=56,y=500)
+        txtsegundos0.place(x=106,y=500)
+        txthoras.place(x=20,y=521,width=38,height=40)
+        txtminutos.place(x=56,y=521,width=56,height=40)
+        txtsegundos.place(x=106,y=521,width=58,height=40)
     
         if configuracion[1][0] == 1:
             txthoras = Label(juego,text="0",relief=GROOVE,bg="#F0F0F0")
