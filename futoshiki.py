@@ -111,6 +111,10 @@ def jugar():
                 columna += 1
             fila += 1
 
+        #datos si se escogió timer
+        if configuracion[1][2] == 1:
+            configuracion[3] = [h,m,s]
+
 
         #se despliega la partida guardada
         desplegar_partida_cargar(numeroPartida,cuadriculaBotones)
@@ -338,9 +342,15 @@ def jugar():
             return
         for i,objetoNumero in enumerate(listaBotonesNumero):
             if objetoNumero != obj:
-                objetoNumero.config(relief="raised",bg=colores[i])
+                for i2,imagen in enumerate(imagenesBotones):
+                    if i == i2:
+                        objetoNumero.config(image=imagen)
+                        break
+                    
         botonNumero = num
-        obj.config(relief="sunken",bg="#A1E240")
+        for i,imagen in enumerate(imagenesBotonesp):
+            if i == num-1:
+                obj.config(image=imagen)
 
 
     #funcion para el botón Iniciar juego
@@ -358,6 +368,9 @@ def jugar():
         nombre = entryNombre.get()
         if nombre == "":
             messagebox.showerror("Error","No ha registrado el nombre del jugador")
+            return
+        if len(nombre) < 1 or len(nombre) > 20:
+            messagebox.showerror("Error","Nombre del jugador inválido")
             return
         btnIniciar.config(state="disabled")
         btnBorrarJugada.config(state="normal")
@@ -383,6 +396,7 @@ def jugar():
         global s
         global variableIniciar
         global tiempoJugado
+        print(h,m,s)
 
         if variableIniciar == 0:
             txthoras.config(text=str(h))
@@ -512,7 +526,7 @@ def jugar():
         if respuesta == False:
             return
 
-        juego.destroy()
+        cerrar()
         jugar()
         
 
@@ -691,6 +705,8 @@ def jugar():
     #con un ciclo se pone en la pantalla las Label según ciertas coordenadas
     #luego, se abre el archivo del top 10 y se van colocando los jugadores y sus tiempos con las antiguas coordenadas
     def Top10():
+        #juego.after_cancel(cronómetro)
+        
         top10 = Toplevel(juego)
         top10.resizable(False,False)
         top10.geometry("580x360")
@@ -869,10 +885,12 @@ def jugar():
     #funcion para cerrar la ventana 
     def cerrar():
         global variableIniciar
+        global botonNumero
         juego.destroy()
         raiz.deiconify()
         variableIniciar = 0
         h,m,s = 0,0,0
+        botonNumero = 0
         return
 
 
@@ -947,11 +965,18 @@ def jugar():
             #botones numeros
             #PANEL NUMERICO
 
-    btnnum1 = Button(juego,text="1",bg="violet red",command=lambda: presionar_numero(1,btnnum1))
-    btnnum2 = Button(juego,text="2",bg="orange",command=lambda: presionar_numero(2,btnnum2))
-    btnnum3 = Button(juego,text="3",bg="dark turquoise",command=lambda: presionar_numero(3,btnnum3))
-    btnnum4 = Button(juego,text="4",bg="orchid",command=lambda: presionar_numero(4,btnnum4))
-    btnnum5 = Button(juego,text="5",bg="gold",command=lambda: presionar_numero(5,btnnum5))
+##    btnnum1 = Button(juego,text="1",bg="violet red",command=lambda: presionar_numero(1,btnnum1))
+##    btnnum2 = Button(juego,text="2",bg="orange",command=lambda: presionar_numero(2,btnnum2))
+##    btnnum3 = Button(juego,text="3",bg="dark turquoise",command=lambda: presionar_numero(3,btnnum3))
+##    btnnum4 = Button(juego,text="4",bg="orchid",command=lambda: presionar_numero(4,btnnum4))
+##    btnnum5 = Button(juego,text="5",bg="gold",command=lambda: presionar_numero(5,btnnum5))
+    
+    btnnum1 = Button(juego,image=imagen1,relief=FLAT,command=lambda: presionar_numero(1,btnnum1))
+    btnnum2 = Button(juego,image=imagen2,relief=FLAT,command=lambda: presionar_numero(2,btnnum2))
+    btnnum3 = Button(juego,image=imagen3,relief=FLAT,command=lambda: presionar_numero(3,btnnum3))
+    btnnum4 = Button(juego,image=imagen4,relief=FLAT,command=lambda: presionar_numero(4,btnnum4))
+    btnnum5 = Button(juego,image=imagen5,relief=FLAT,command=lambda: presionar_numero(5,btnnum5))
+    
     listaBotonesNumero = [btnnum1,btnnum2,btnnum3,btnnum4,btnnum5]
     colores = ["violet red","orange","dark turquoise","orchid","gold"]
 
@@ -1012,11 +1037,11 @@ def jugar():
         btn43.place(x=360,y=345,width=40,height=40)
         btn44.place(x=415,y=345,width=40,height=40)
 
-        btnnum1.place(x=140,y=135,width=30)
-        btnnum2.place(x=140,y=190,width=30)
-        btnnum3.place(x=140,y=245,width=30)
-        btnnum4.place(x=140,y=300,width=30)
-        btnnum5.place(x=140,y=355,width=30)
+        btnnum1.place(x=140,y=135,width=30,height=30)
+        btnnum2.place(x=140,y=190,width=30,height=30)
+        btnnum3.place(x=140,y=245,width=30,height=30)
+        btnnum4.place(x=140,y=300,width=30,height=30)
+        btnnum5.place(x=140,y=355,width=30,height=30)
 
         #MATRIZ DE COORDENADAS DE LOS BOTONES DE LA CUADRICULA
         coordenadas = [[(195,125),(250,125),(305,125),(360,125),(415,125)],\
@@ -1058,11 +1083,11 @@ def jugar():
         btn43.place(x=305,y=345,width=40,height=40)
         btn44.place(x=360,y=345,width=40,height=40)
 
-        btnnum1.place(x=430,y=135,width=30)
-        btnnum2.place(x=430,y=190,width=30)
-        btnnum3.place(x=430,y=245,width=30)
-        btnnum4.place(x=430,y=300,width=30)
-        btnnum5.place(x=430,y=355,width=30)
+        btnnum1.place(x=430,y=135,width=30,height=30)
+        btnnum2.place(x=430,y=190,width=30,height=30)
+        btnnum3.place(x=430,y=245,width=30,height=30)
+        btnnum4.place(x=430,y=300,width=30,height=30)
+        btnnum5.place(x=430,y=355,width=30,height=30)
 
         btnGuardar.place(x=190,y=520,width=100)
         btnCargar.place(x=305,y=520,width=100)
@@ -1245,7 +1270,6 @@ def configurar():
 
     #LABELS Y CHECKBUTTONS
     
-    
     #la configuración por default está marcada en rojo, si no está marcada se quita lo rojo
     #valores on 1 off 0
     txt1 = Label(configraiz,text="Nivel:",bg="#292929",fg="white").place(x=0,y=0)
@@ -1300,6 +1324,8 @@ def configurar():
     checkbtn8.place(x=100,y=180)
     
     txt = Label(configraiz,text="Izquierda",bg="#292929",fg="white").place(x=120,y=183)
+
+    
 
 
     #RELOJ
@@ -1407,6 +1433,20 @@ si,no,timer= IntVar(value=1),IntVar(),IntVar()
 
 fondo = PhotoImage(file="futoshiki.png")
 Labelfondo = Label(raiz,image=fondo).pack()
+
+imagen1 = PhotoImage(file="boton1.png")
+imagen2 = PhotoImage(file="boton2.png")
+imagen3 = PhotoImage(file="boton3.png")
+imagen4 = PhotoImage(file="boton4.png")
+imagen5 = PhotoImage(file="boton5.png")
+imagenesBotones = [imagen1,imagen2,imagen3,imagen4,imagen5]
+
+imagen1p = PhotoImage(file="boton1p.png")
+imagen2p = PhotoImage(file="boton2p.png")
+imagen3p = PhotoImage(file="boton3p.png")
+imagen4p = PhotoImage(file="boton4p.png")
+imagen5p = PhotoImage(file="boton5p.png")
+imagenesBotonesp = [imagen1p,imagen2p,imagen3p,imagen4p,imagen5p]
 
 #BOTONES 
 ButtonJugar = Button(raiz,text="Jugar",command=jugar,font=("cambria", 15),fg="white",bg="#292929")
